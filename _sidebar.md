@@ -1,2 +1,28 @@
-- [首页](README.md)
-- [使用指南](guide.md)
+- [写在前面](README.md)
+- 实时协同编程
+  - [什么是实时系统编程](rcp/what_is_rcp.md)
+  - [OT算法 vs CRDT算法](rcp/ot_vs_crdt.md)
+- 什么是AI编程
+  - [为什么使用AI编程](ai_coding/why_ai_coding.md)
+  - [GitHub Education](ai_coding/github_education.md)
+- 技术栈
+  - [Shell](tech_stack/shell.md)
+  - [TypeScript](tech_stack/typescript.md)
+  - [Git](tech_stack/git.md)
+  - [Y.js](tech_stack/yjs.md)
+- Git
+  - [Git 基础](git/git_basic.md)
+  - [Git 团队协作流程](git/git_team_workflow.md)
+- [敏捷开发](agile.md)
+- VS Code插件开发
+  - [示例：如何创建侧边栏](vscode_plugin/create_sidebar.md)
+  - [示例：如何创建状态栏](vscode_plugin/create_statusbar.md)
+- [如何正确地搜索](search.md)
+- [常用软件开发工具推荐](recommended_tools.md)
+- Collaboration Tools项目概览
+  - [项目概览](collaboration_tools/project_overview.md)
+- 深入Collaboration Tools
+  - [项目是怎么运行的](collaboration_tools/how_it_works.md)
+- 深入实时协同编程
+  - [未来的研究方向](rcp/future_research.md)
+- [总结](summary.md)
