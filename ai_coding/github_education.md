@@ -42,32 +42,59 @@ GitHub Education 是 GitHub 面向全球学生、教师和教育机构推出的�
 
 申请过程并不复杂，关键在于证明你当前的学生身份。
 
-### 申请条件
+### 申请注意事项
 
-1.  年满 13 周岁。
-2.  拥有一个 GitHub 账户。
-3.  是一名正在被授予学位或文凭的教育机构中就读的学生。
-4.  拥有能够证明你学生身份的材料。（个人推荐使用录取通知书或学信网验证报告）
+1.  使用校园网
+1.  定位在学校附近
+1.  不能挂vpn
+1.  使用学信网学籍证明
+1.  github profile/pay information应当与学籍证明相匹配
 
 ### 申请步骤
 
-> 请注意：这里的教程主要还是AI生成的，可能会有一些错误，可以从小红书、知乎、CSDN等网站获取更详细的图文并茂的教程，网上写得太多了，我懒得写了。
+1. **官网申请**：打开 GitHub Education 官网：[https://education.github.com](https://education.github.com)。
 
-1.  **访问官网**：打开 GitHub Education 官网：[https://education.github.com](https://education.github.com)。
+   - 点击Join Github Education按钮
 
-2.  **开始申请**：点击页面上的 “Sign up for Student Developer Pack” 或类似的按钮。
+   - ![](../assets/Click_join_botton.png)
 
-3.  **选择身份**：在身份选择中，点击 “Get student benefits”。
+   - 点击Start an application按钮
 
-4.  **填写学校信息**：如果你拥有学校提供的、以 `.edu` 或 `.edu.cn` 结尾的教育邮箱，请务必在你的 GitHub 账户中关联并验证它。
+   - ![](../assets/Click_application_botton.png)
 
-5.  **上传证明材料（关键步骤）**，这是国内学生申请时最关键的一步。
+   - 点击添加学校邮箱按钮（若已添加则跳过）
 
-    > 根据我本人以及许多同学的成功经验，**录取通知书**和**学信网在线验证报告**的通过率非常高
+   - ![](../assets/Add_your_school_email_1.png)![](../assets/Add_your_school_email_2.png)
 
-6.  **提交并等待**
+   - 去同济邮件系统点击确认
 
-      * 提交申请后，你需要耐心等待 GitHub 的审核。如果使用教育邮箱自动通过，你会立刻收到邮件。手动审核则可能需要几天到一两周不等。审核结果会通过邮件通知你。
+   - ![](../assets/Click_verify_botton.png)
+
+   - 选择学校-同济大学
+
+   - ![](../assets/Select_Tongji_University.png)
+
+   - 点击共享位置（注意要在学校附近且使用校园网，此处问题较多，可结合网上资料解决）
+
+   - ![](../assets/Share_your_location_1.png)![](../assets/Share_your_location_2.png)
+
+   - 选择上传资料-Dated school ID
+
+   - ![](../assets/Select_dated_school_ID.png)
+
+     
+
+2. **申请学信网学籍认证**：
+
+   - 登录学信网后选择学信档案
+   - ![](../assets/Apply_for_archive_1.png)
+   - 选择查看或申请在线验证报告
+   - ![](../assets/Apply_for_archive_2.png)
+   - 之后将会看到中文的报告，使用浏览器自带翻译功能翻译成英文
+   - 翻译成英文后可能会出现二维码遮挡日期的情况，若有请在下面的样式表中将width改为200px
+   - ![](../assets/Apply_for_archive_3.png)
+   - 之后使用浏览器自带的打印成pdf功能打印页面（不要使用网页的打印功能，并且要勾选背景图形）
+   - ![](../assets/Apply_for_archive_4.png)
 
 ## 拿到“神装”之后
 
