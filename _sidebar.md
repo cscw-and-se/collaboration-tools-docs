@@ -5,24 +5,31 @@
 - 什么是AI编程
   - [为什么使用AI编程](ai_coding/why_ai_coding.md)
   - [GitHub Education](ai_coding/github_education.md)
+  - [Cursor Education](ai_coding/cursor_education.md)
+  - [Gemini Cli](ai_coding/gemini_cli.md)
 - 技术栈
   - [Shell](tech_stack/shell.md)
   - [TypeScript](tech_stack/typescript.md)
-  - [Git](tech_stack/git.md)
   - [Y.js](tech_stack/yjs.md)
+  - [前后端开发](tech_stack/frontend_backend.md)
 - Git
   - [Git 基础](git/git_basic.md)
   - [Git 团队协作流程](git/git_team_workflow.md)
 - [敏捷开发](agile.md)
 - VS Code插件开发
-  - [示例：如何创建侧边栏](vscode_plugin/create_sidebar.md)
-  - [示例：如何创建状态栏](vscode_plugin/create_statusbar.md)
+  - [大纲](vscode_plugin/outline.md)
+  - [Hello World](vscode_plugin/hello_world.md)
+  - [命令与基础UI](vscode_plugin/command_and_basic_ui.md)
+  - [编辑器 API](vscode_plugin/editor_api.md)
+  - [侧边栏与 Webview](vscode_plugin/sidebar_and_webview.md)
 - [如何正确地搜索](search.md)
 - [常用软件开发工具推荐](recommended_tools.md)
 - Collaboration Tools项目概览
   - [项目概览](collaboration_tools/project_overview.md)
-- 深入Collaboration Tools
   - [项目是怎么运行的](collaboration_tools/how_it_works.md)
+- 深入Collaboration Tools
+  <!-- - [项目是怎么运行的](collaboration_tools/how_it_works.md) -->
+- [代码规范](code_style.md)
 - 深入实时协同编程
   - [未来的研究方向](rcp/future_research.md)
 - [总结](summary.md)
