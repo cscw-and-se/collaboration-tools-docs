@@ -35,7 +35,7 @@ collaboration-tools 是一个全栈协作系统的 Monorepo 项目，旨在为�
 
 关键特性：
 
-- 支持多种认证方式：简单登录（`simple-login-endpoint.ts`）、OAuth（如 GitHub、Google）和 Keycloak 集成
+- 支持多种认证方式：简单登录（`simple-login-endpoint.ts`）、OAuth（如 GitHub、Google）和 Keycloak 集成（目前由于网络原因等因素，仅支持简单登录）
 - 房间管理（`room-manager.ts`）与用户状态跟踪（`user-manager.ts`）
 - 消息转发（`message-relay.ts`）与频道通信（`channel.ts`）
 - 可配置环境变量（如 `OCT_SERVER_OWNER`, `OCT_JWT_PRIVATE_KEY`）以适应企业部署需求
@@ -55,11 +55,8 @@ VS Code 扩展提供完整的协作界面，集成于状态栏，支持创建/�
 - 用户光标颜色标识与跟随功能
 - 支持多语言本地化（`.nls.*.json` 文件）
 
-**Section sources**
-- [packages/open-collaboration-vscode/README.md](file://packages/open-collaboration-vscode/README.md)
-- [packages/open-collaboration-vscode/package.json](file://packages/open-collaboration-vscode/package.json)
-
 #### open-collaboration-monaco
+
 为基于 Monaco 编辑器的 Web 应用提供协作能力。通过 `MonacoCollabApi` 类暴露简洁 API，支持：
 - `createRoom()` / `joinRoom(roomToken)`：房间创建与加入
 - `setEditor(editor)`：绑定 Monaco 实例
@@ -67,10 +64,6 @@ VS Code 扩展提供完整的协作界面，集成于状态栏，支持创建/�
 - `followUser(id)`：跟随指定用户编辑行为
 
 适用于在线 IDE、代码评审工具等 Web 场景。
-
-**Section sources**
-- [packages/open-collaboration-monaco/README.md](file://packages/open-collaboration-monaco/README.md)
-- [packages/open-collaboration-monaco/package.json](file://packages/open-collaboration-monaco/package.json)
 
 ### 状态同步：open-collaboration-yjs
 

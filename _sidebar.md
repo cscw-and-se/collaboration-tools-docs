@@ -16,7 +16,7 @@
   - [Git 基础](git/git_basic.md)
   - [Git 团队协作流程](git/git_team_workflow.md)
 - [敏捷开发](agile.md)
-- VS Code插件开发
+- VS Code插件开发(TODO)
   - [大纲](vscode_plugin/outline.md)
   - [Hello World](vscode_plugin/hello_world.md)
   - [命令与基础UI](vscode_plugin/command_and_basic_ui.md)
@@ -26,9 +26,25 @@
 - [常用软件开发工具推荐](recommended_tools.md)
 - Collaboration Tools项目概览
   - [项目概览](collaboration_tools/project_overview.md)
+  - [技术栈与架构](collaboration_tools/技术栈与架构.md)
   - [项目是怎么运行的](collaboration_tools/how_it_works.md)
-- 深入Collaboration Tools
-  <!-- - [项目是怎么运行的](collaboration_tools/how_it_works.md) -->
+  - [数据模型与状态同步](collaboration_tools/数据模型与状态同步.md)
+  - 核心模块详解
+    - [核心模块详解](collaboration_tools/核心模块详解/核心模块详解.md)
+    - [open-collaboration-agent模块](collaboration_tools/核心模块详解/open-collaboration-agent模块.md)
+    - [open-collaboration-yjs模块](collaboration_tools/核心模块详解/open-collaboration-yjs模块.md)
+    - [open-collaboration-monaco模块](collaboration_tools/核心模块详解/open-collaboration-monaco模块.md)
+    - open-collaboration-vscode模块
+      - [open-collaboration-vscode模块](collaboration_tools/核心模块详解/open-collaboration-vscode模块/open-collaboration-vscode模块.md)
+      - [UI集成与命令系统](collaboration_tools/核心模块详解/open-collaboration-vscode模块/UI集成与命令系统.md)
+      - [文件系统代理与远程访问](collaboration_tools/核心模块详解/open-collaboration-vscode模块/文件系统代理与远程访问.md)
+      - [核心服务与状态管理](collaboration_tools/核心模块详解/open-collaboration-vscode模块/核心服务与状态管理.md)
+      - [扩展架构与生命周期](collaboration_tools/核心模块详解/open-collaboration-vscode模块/扩展架构与生命周期.md)
+  - 安全与认证
+    - [安全与认证](collaboration_tools/安全与认证/安全与认证.md)
+    - [通信安全](collaboration_tools/安全与认证/通信安全.md)
+    - [认证机制](collaboration_tools/安全与认证/认证机制.md)
+    - [简易登录](collaboration_tools/安全与认证/简易登录.md)
 - [代码规范](code_style.md)
 - 深入实时协同编程
   - [未来的研究方向](rcp/future_research.md)
