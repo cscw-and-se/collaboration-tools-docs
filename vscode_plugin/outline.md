@@ -32,3 +32,6 @@
 * `4.1 侧边栏视图 (Sidebar View)`: 使用 `TreeDataProvider` 创建可交互的树状列表。
 * `4.2 Webview`: 构建完全自定义的复杂 UI 界面。
 * `4.3 插件与 Webview 通信`: 学习如何让你的插件主程序（TypeScript）与 Webview 中的网页（HTML/JS）互相发送和接收消息。
+
+关于这几章的代码，汇总形成了一个小的demo，点击[这里](https://github.com/Baokker/a_small_vscode_plugin_demo)查看。
+
