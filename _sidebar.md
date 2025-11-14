@@ -16,7 +16,7 @@
   - [Git 基础](git/git_basic.md)
   - [Git 团队协作流程](git/git_team_workflow.md)
 - [敏捷开发](agile.md)
-- VS Code插件开发(TODO)
+- VS Code插件开发
   - [大纲](vscode_plugin/outline.md)
   - [基础入门 - Hello, World](vscode_plugin/hello_world.md)
   - [核心交互 - 命令、UI 与上下文](vscode_plugin/command_and_basic_ui.md)
@@ -24,7 +24,7 @@
   - [视图、配置与状态](vscode_plugin/sidebar_and_webview.md)
 - [如何正确地搜索](search.md)
 - [常用软件开发工具推荐](recommended_tools.md)
-- Collaboration Tools项目概览
+- 项目概览
   - [项目概览](collaboration_tools/project_overview.md)
   - [技术栈与架构](collaboration_tools/技术栈与架构.md)
   - [项目是怎么运行的](collaboration_tools/how_it_works.md)
