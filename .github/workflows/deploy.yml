@@ -1,0 +1,36 @@
+name: Deploy Docsify to GitHub Pages
+
+# 触发条件：推送到 main 分支时执行
+on:
+  push:
+    branches: [ main ]  # 若主分支是 master，此处改为 master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # 使用 Ubuntu 环境
+
+    steps:
+      # 步骤 1：拉取仓库代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 拉取所有历史提交，避免 Docsify 链接问题
+    # 在 steps 中添加（位于 checkout 和 deploy 之间）
+      - name: Install dependencies
+        run: npm install  # 若使用 npm 管理依赖
+
+      - name: Build docs (示例：生成静态文件)
+        run: npm run build  # 若有自定义构建命令
+
+      # 步骤 2：部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4  # 第三方部署工具
+        with:
+          # GitHub 令牌（自动生成，无需手动配置）
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 源目录：Docsify 项目根目录（通常是仓库根目录）
+          publish_dir: ./
+          # 部署目标分支（GitHub Pages 通常用 gh-pages）
+          publish_branch: gh-pages
+          # 可选：保留历史提交（避免分支过大可设为 false）
+          keep_files: true
