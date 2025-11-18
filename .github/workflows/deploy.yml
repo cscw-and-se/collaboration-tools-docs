@@ -16,6 +16,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs  # 如果你的 index.html 在根目录，这里改成 ./
+          publish_dir: ./  # 如果你的 index.html 在根目录，这里改成 ./
           publish_branch: gh-pages
           keep_files: false
