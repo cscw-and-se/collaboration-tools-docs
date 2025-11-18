@@ -1,5 +1,7 @@
 # 写在前面
 
+> 本文已借助Github Actions及Pages自动化部署了可阅读的网页：https://cscw-and-se.github.io/collaboration-tools-docs/#/
+
 ## 初衷
 
 构建这个文档项目，主要源于两个初衷：
@@ -13,8 +15,6 @@
 ## 如何运行本文档
 
 为了提供简单、轻量的阅读和编辑体验，本文档基于 **[docsify](https://docsify.js.org/#/)** 框架构建。你只需要使用 Markdown 语法便可以轻松编辑，并通过以下步骤在本地运行。
-
-此外，本文当也已借助Github Actions及Pages自动化部署了可阅读的网页：https://cscw-and-se.github.io/collaboration-tools-docs/#/
 
 ### 第一步：安装 Node.js (推荐使用 nvm)
 
