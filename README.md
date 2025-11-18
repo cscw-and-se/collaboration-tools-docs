@@ -14,6 +14,8 @@
 
 为了提供简单、轻量的阅读和编辑体验，本文档基于 **[docsify](https://docsify.js.org/#/)** 框架构建。你只需要使用 Markdown 语法便可以轻松编辑，并通过以下步骤在本地运行。
 
+此外，本文当也已借助Github Actions及Pages自动化部署了可阅读的网页：https://cscw-and-se.github.io/collaboration-tools-docs/#/
+
 ### 第一步：安装 Node.js (推荐使用 nvm)
 
 `nvm` (Node Version Manager) 是一个强大的 Node.js 版本管理工具，可以让你在同一台机器上轻松切换不同版本的 Node.js。
