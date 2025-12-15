@@ -6,6 +6,7 @@
   - [为什么使用AI编程](ai_coding/why_ai_coding.md)
   - [GitHub Education](ai_coding/github_education.md)
   - [Cursor Education](ai_coding/cursor_education.md)
+  - [如何使用 CodeX 进行 vibe coding](ai_coding/using_codex.md)
   - [Gemini Cli](ai_coding/gemini_cli.md)
 - 技术栈
   - [Shell](tech_stack/shell.md)
@@ -22,8 +23,12 @@
   - [核心交互 - 命令、UI 与上下文](vscode_plugin/command_and_basic_ui.md)
   - [编辑器与文件系统](vscode_plugin/editor_api.md)
   - [视图、配置与状态](vscode_plugin/sidebar_and_webview.md)
-- [如何正确地搜索](search.md)
-- [常用软件开发工具推荐](recommended_tools.md)
+- 一些笔记
+  - [如何正确地搜索](search.md)
+  - [常用软件开发工具推荐](recommended_tools.md)
+  - [如何使用 EndNote 进行文献管理](random_notes/using_endnote.md)
+  - [如何优雅地编辑本文档](random_notes/how_to_write_this_doc.md)
+  - [如何进行文献综述](random_notes/how_to_write_a_literature_review.md)
 - 项目概览
   - [项目概览](collaboration_tools/project_overview.md)
   - [技术栈与架构](collaboration_tools/技术栈与架构.md)
@@ -77,4 +82,23 @@
 - [代码规范](code_style.md)
 - 深入实时协同编程
   - [未来的研究方向](rcp/future_research.md)
+- 一些AI总结的课程笔记
+  - CMU 17-803
+    - [1](courses/cmu-17-803/1.md)
+    - [2](courses/cmu-17-803/2.md)
+    - [3](courses/cmu-17-803/3.md)
+    - [4](courses/cmu-17-803/4.md)
+    - [5](courses/cmu-17-803/5.md)
+    - [6](courses/cmu-17-803/6.md)
+    - [7](courses/cmu-17-803/7.md)
+    - [8](courses/cmu-17-803/8.md)
+    - [9](courses/cmu-17-803/9.md)
+    - [10](courses/cmu-17-803/10.md)
+    - [11](courses/cmu-17-803/11.md)
+    - [12](courses/cmu-17-803/12.md)
+    - [13](courses/cmu-17-803/13.md)
+    - [14](courses/cmu-17-803/14.md)
+    - [15](courses/cmu-17-803/15.md)
+    - [16](courses/cmu-17-803/16.md)
+  - Missing Semester(to update)
 - [总结](summary.md)

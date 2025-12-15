@@ -10,6 +10,12 @@
 
 可以参考 [VS Code Live Share 的官方演示](https://visualstudio.microsoft.com/zh-hans/services/live-share/)，直观地感受一下它的魅力。
 
+![](assets/2025-12-14-16-45-23.png)
+
+当然，我个人觉得JetBrains的Code With Me做得更好
+
+![](assets/2025-12-14-16-46-27.png)
+
 ## 为什么它很重要？
 
 实时协同编程不仅仅是一个“酷炫”的功能，它在多个场景下都具有巨大的实用价值：
@@ -54,6 +60,10 @@
 这篇论文通过采访使用 Live Share 的真实用户，系统性地总结了 RCP 的特点、用户需求和核心挑战，是一份非常宝贵的参考资料。我在`./assets/Understanding Real-Time Collaborative Programming.pdf`也附上了pdf文件。
 
 当然，如果未来有志于学术研究，更推荐你掌握使用 **[谷歌学术 (Google Scholar)](https://scholar.google.com/)** 的方法。它是一个极为强大的学术搜索引擎，可以帮你高效地检索和发现相关领域的前沿论文。（当然，如果你遇到一些网络的缘故，请找你身边的同学或者找学长帮忙，本文对此不做介绍）
+
+![](assets/2025-12-14-16-51-15.png)
+
+![](assets/2025-12-14-16-50-41.png)
 
 ## 总结
 
