@@ -33,6 +33,8 @@ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
 安装完成后，请**重启你的终端**，然后运行 `nvm --version` 来验证是否安装成功。
 
+![](assets/2025-12-14-16-44-30.png)
+
 - 如果你使用的是Windows系统，请参考使用[nvm-windows](https://github.com/coreybutler/nvm-windows)
 
 - **使用 nvm 安装 Node.js**:
