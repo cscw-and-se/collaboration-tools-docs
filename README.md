@@ -1,5 +1,7 @@
 # 写在前面
 
+> 本文已借助Github Actions及Pages自动化部署了可阅读的网页：https://cscw-and-se.github.io/collaboration-tools-docs/#/
+
 ## 初衷
 
 构建这个文档项目，主要源于两个初衷：
