@@ -82,7 +82,8 @@
 - [代码规范](code_style.md)
 - 深入实时协同编程
   - [未来的研究方向](rcp/future_research.md)
-- 一些AI总结的课程笔记
+- 一些课程推荐（附带AI总结笔记）
+  - [CSDIY](https://csdiy.wiki/)
   - CMU 17-803
     - [1](courses/cmu-17-803/1.md)
     - [2](courses/cmu-17-803/2.md)
@@ -100,5 +101,15 @@
     - [14](courses/cmu-17-803/14.md)
     - [15](courses/cmu-17-803/15.md)
     - [16](courses/cmu-17-803/16.md)
-  - Missing Semester(to update)
+  - Missing Semester
+    - [Course Overview + Introduction to the Shell](courses/missing_semester/course_overview_and_introduction_to_the_shell.md)
+    - [Shell Tools and Scripting](courses/missing_semester/shell_tools_and_scripting.md)
+    - [Editors (Vim)](courses/missing_semester/editor_vim.md)
+    - [Data Wrangling](courses/missing_semester/data_wrangling.md)
+    - [Command Line Environment](courses/missing_semester/command_line.md)
+    - [Version Control](courses/missing_semester/version_control.md)
+    - [Debugging and Profiling](courses/missing_semester/debugging_profiling.md)
+    - [Metaprogramming](courses/missing_semester/metaprogramming.md)
+    - [Security](courses/missing_semester/security.md)
+    - [Potpourri](courses/missing_semester/potpourri.md)
 - [总结](summary.md)
