@@ -1,247 +1,163 @@
-# open-collaboration-server 模块
+# open-collaboration-server 模块（房间、Peer、消息中继、认证）
 
-## 简介
+如果你把整个协作系统想成一个“多人同时在线的状态机”，那么 `open-collaboration-server` 就是状态机的裁判：
 
-`open-collaboration-server` 是一个用于支持实时协作的后端服务模块，其核心职责包括房间管理、用户认证、消息中继与对等节点协调。该模块基于 WebSocket 和 Socket.IO 实现双向通信，结合 Yjs 状态同步协议，支持多用户协同编辑场景。服务采用依赖注入（Inversify）组织组件，具备可扩展的认证机制（OAuth、Keycloak、简易登录），并通过 `message-relay` 实现高效的消息广播与单播分发。本文档将深入解析其架构设计与运行机制。
+- 谁能进房间（鉴权 + join 审批）？
+- 谁在房间里（Peer 管理）？
+- 谁发给谁（消息中继：request/notification/broadcast）？
+- 断线重连算不算同一个人（JWT 复用策略）？
 
-## 项目结构
+这一页用“从连接进来到同步跑起来”的顺序，把 server 端主链路讲清楚，并在关键位置贴 10-30 行真实代码方便你对照源码。
 
-`open-collaboration-server` 模块位于 `packages/open-collaboration-server` 目录下，主要包含以下子目录与文件：
+## server 端的三条主线
 
-- `src/`: 源码目录
-  - `auth-endpoints/`: 认证端点实现（OAuth、Keycloak、简易登录）
-  - `static/`: 静态资源（如 `login.html`）
-  - `utils/`: 工具类（配置、日志）
-  - 核心模块：`app.ts`, `collaboration-server.ts`, `room-manager.ts`, `message-relay.ts`, `peer-manager.ts`, `peer.ts`, `inversify-module.ts`
-- `config.json`: 服务配置文件
-- `package.json`: 项目依赖与脚本
+你读 server 源码时，建议把注意力拆成三条主线（不然很容易迷路）：
 
-该结构采用功能模块化组织，核心逻辑与认证、工具分离，便于维护与扩展。
+1. 连接入口：`CollaborationServer.connectChannel()`，决定这条连接是否可信、是否要复用既有 Peer。
+2. 房间与 join：`RoomManager.prepareRoom/join/requestJoin/leaveRoom`，决定 room 的生命周期和 join 审批行为。
+3. 消息分发：`PeerImpl.receiveMessage()` + `MessageRelay.sendRequest/sendBroadcast`，决定消息怎么路由与广播。
 
-## 核心组件
-本模块的核心组件包括：
-- **协作服务器 (CollaborationServer)**: 服务入口，管理 WebSocket 连接、API 路由与认证流程。
-- **房间管理器 (RoomManager)**: 负责房间的创建、加入、离开与销毁，维护房间生命周期。
-- **消息中继 (MessageRelay)**: 实现消息的广播、单播与请求-响应模式，是通信核心。
-- **对等节点管理器 (PeerManager)**: 跟踪所有连接的客户端（Peer），支持会话复用。
-- **依赖注入模块 (InversifyModule)**: 组织服务组件，实现松耦合。
-- **认证端点 (AuthEndpoint)**: 提供多种认证方式的统一接口。
+下面我们按这三条主线走一遍。
 
-这些组件通过依赖注入协同工作，形成一个高内聚、低耦合的协作服务系统。
+## 1) 连接入口：`connectChannel()` 为什么要 JWT + public key
 
-## 架构概览
+客户端连到 server（Socket.IO）时，会在 headers 里带上：
 
-整个服务采用分层架构，自上而下分为：
+- `x-oct-jwt`：会话 JWT（可能是 user token，也可能是 room token，取决于阶段）。
+- `x-oct-public-key`：用于消息级加密的公钥。
+- `x-oct-compression`：声明支持的压缩算法集合。
 
-1. **接入层**: 通过 Express 提供 REST API，通过 Socket.IO 处理实时连接。
-2. **控制层**: `CollaborationServer` 协调所有操作，处理连接接入与 API 请求。
-3. **业务逻辑层**: `RoomManager` 和 `MessageRelay` 实现核心协作逻辑。
-4. **认证层**: 多种 `AuthEndpoint` 实现不同的用户登录方式。
-5. **数据与会话层**: `PeerManager` 和内存中的 `Room` 对象维护会话状态。
-6. **工具层**: `Configuration` 和 `Logger` 提供基础支持。
+server 端入口代码非常“硬核”地把这些条件写死了：
 
-## 详细组件分析
-
-### 协作服务器分析
-
-`CollaborationServer` 是服务的主控制器，负责启动 HTTP 服务器、建立 Socket.IO 连接、注册 API 路由和初始化认证端点。
-
-#### WebSocket 连接接入
-
-当客户端通过 Socket.IO 连接时，服务器从请求头中提取 JWT、公钥等信息，验证后创建或复用 `Peer` 对象，并调用 `RoomManager.join()` 加入房间。
-
-**代码逻辑**
-
-1. 从 `headers` 中获取 `x-oct-jwt` 和 `x-oct-public-key`。
-2. 使用 `CredentialsManager.verifyJwt()` 验证 JWT 并解析 `RoomClaim`。
-3. 检查是否存在同 JWT 的 `Peer`，若存在则更新通道（重连场景）。
-4. 否则，通过 `PeerFactory` 创建新 `Peer` 并注册到 `PeerManager`。
-5. 调用 `RoomManager.join()` 加入指定房间。
-
-### 房间管理器分析
-`RoomManager` 是房间生命周期的核心管理者。
-
-#### 房间生命周期管理
-```mermaid
-stateDiagram-v2
-[*] --> Idle
-Idle --> Preparing : prepareRoom(user)
-Preparing --> Created : 返回 PreparedRoom
-Created --> Joined : join(peer, roomId)
-Joined --> Active : 多个 Peer 加入
-Active --> Closing : closeRoom(id)
-Closing --> Closed : 房间销毁
-Closed --> [*]
-```
-
-**创建房间**
-- `prepareRoom(user)`: 生成唯一房间 ID 和 JWT，返回 `PreparedRoom` 对象。
-- JWT 中包含 `RoomClaim`，标识用户为房主 (`host: true`)。
-
-**加入/退出房间**
-- `join(peer, roomId)`: 若 `peer.host` 为真，则创建新房间；否则加入现有房间。
-- `leaveRoom(peer)`: 发送离开广播，从房间移除 `Peer`，房主退出则关闭房间。
-
-### 消息中继分析
-
-`MessageRelay` 负责消息的分发，支持广播、单播和请求-响应模式。
-
-#### 消息分发策略
-
-```mermaid
-flowchart TD
-A[sendBroadcast] --> B{消息是否加密?}
-B --> |否| C[向房间内所有其他 Peer 发送]
-B --> |是| D[为每个 Peer 提取专属密钥]
-D --> E[发送仅含目标密钥的加密消息]
-F[sendRequest] --> G[创建 Deferred Promise]
-G --> H[将请求存入 requestMap]
-H --> I[发送请求]
-I --> J[等待响应或超时]
-J --> K[从 requestMap 移除并 resolve/reject]
-L[pushResponse] --> M[查找 requestMap 中的请求]
-M --> N[resolve Promise]
-```
-
-#### 与 Yjs 状态同步的集成
-
-虽然 `message-relay.ts` 本身不直接处理 Yjs 数据，但它是 Yjs 状态同步消息的传输通道。Yjs 的 `awareness` 和 `update` 消息通过 `BroadcastMessage` 在 `Peer` 间广播，`MessageRelay.sendBroadcast()` 确保所有房间成员接收到同步消息。
-
-### 认证机制分析
-服务支持三种认证方式：简易登录、OAuth（GitHub/Google）、Keycloak。
-
-#### 认证方式实现路径
-```mermaid
-classDiagram
-class AuthEndpoint {
-<<interface>>
-+shouldActivate() boolean
-+getProtocolProvider() AuthProvider
-+onStart(app, host, port) void
-+onDidAuthenticate Event
-}
-class SimpleLoginEndpoint {
-+shouldActivate() : boolean
-+getProtocolProvider() : FormAuthProvider
-+onStart() : void
-}
-class OAuthEndpoint {
-+shouldActivate() : boolean
-+getStrategy() : passport.Strategy
-+onStart() : void
-}
-class GitHubOAuthEndpoint {
-+getStrategy() : GithubStrategy
-}
-class GoogleOAuthEndpoint {
-+getStrategy() : GoogleStrategy
-}
-class KeycloakOAuthEndpoint {
-+getStrategy() : KeycloakStrategy
-}
-AuthEndpoint <|-- SimpleLoginEndpoint
-AuthEndpoint <|-- OAuthEndpoint
-AuthEndpoint <|-- KeycloakOAuthEndpoint
-OAuthEndpoint <|-- GitHubOAuthEndpoint
-OAuthEndpoint <|-- GoogleOAuthEndpoint
-```
-
-**简易登录流程**
-1. 客户端请求 `/api/login/initial` 获取 `pollToken`。
-2. 重定向到 `/login.html?token=...`。
-3. 用户提交用户名/邮箱，POST 到 `/api/login/simple`。
-4. 服务验证后，通过 `onDidAuthenticate` 事件调用 `CredentialsManager.confirmUser()` 确认用户。
-
-**OAuth 流程**
-1. 客户端请求 `/api/login/github`。
-2. 服务重定向到 GitHub 登录页（携带 `state=token`）。
-3. GitHub 回调 `/api/login/github-callback`。
-4. Passport 解析用户信息，触发 `onDidAuthenticate`。
-
-**Token 验证与权限控制**
-- 所有 API 请求（如 `/api/session/join/:room`）通过中间件 `getUserFromAuth()` 验证 JWT。
-- `CredentialsManager.getUser()` 解析 JWT 并返回 `User` 对象，无有效 Token 则返回 403。
-
-### 配置与依赖注入分析
-
-#### config.json 配置项说明
-```json
-{
-  "oct-activate-simple-login": true,  // 是否启用简易登录
-  "oct-server-owner": "Local Development", // 服务器所有者
-  "oct-base-url": "http://localhost:8100" // 基础 URL，用于 OAuth 回调
+```ts
+protected async connectChannel(headers: Record<string, string | undefined>, channel: TransportChannel): Promise<void> {
+    const jwt = headers['x-oct-jwt'];
+    if (!jwt) {
+        throw this.logger.createErrorAndLog('No JWT auth token set');
+    }
+    const publicKey = headers['x-oct-public-key'];
+    if (!publicKey) {
+        throw this.logger.createErrorAndLog('No encryption key set');
+    }
+    let compression = headers['x-oct-compression']?.split(',');
+    if (compression === undefined || compression.length === 0) {
+        compression = ['none'];
+    }
+    const client = headers['x-oct-client'] ?? 'unknown';
+    const roomClaim = await this.credentials.verifyJwt(jwt, isRoomClaim);
+    const existingPeer = this.peerManager.getPeer(jwt);
+    if (existingPeer) {
+        existingPeer.channel.transport = channel;
+    } else {
+        const peer = this.peerFactory({
+            jwt,
+            user: roomClaim.user,
+            host: roomClaim.host ?? false,
+            channel,
+            client,
+            publicKey,
+            supportedCompression: compression
+        });
+        this.peerManager.register(peer);
+        await this.roomManager.join(peer, roomClaim.room);
+    }
 }
 ```
 
-其他可能配置（未在文件中体现但代码中使用）：
-- `oct-oauth-github-clientid`: GitHub OAuth 客户端 ID
-- `oct-oauth-github-clientsecret`: GitHub OAuth 客户端密钥
-- `oct-login-page-url`: 自定义登录页 URL
-- `oct-login-success-url`: 登录成功后重定向 URL
+这段代码解决的核心问题是：“server 如何把一条 socket 连接变成一个可管理的 Peer，并把它挂到某个 room”。你读这段时建议重点看：
 
-#### 依赖注入作用
-`inversify-module.ts` 使用 InversifyJS 实现依赖注入，优点包括：
-- **解耦**: 组件通过接口注入，不直接依赖具体实现。
-- **单例管理**: `inSingletonScope()` 确保 `RoomManager`、`MessageRelay` 等核心服务全局唯一。
-- **工厂模式**: `PeerFactory` 动态创建 `PeerImpl` 实例，每个连接一个 `Peer`。
-- **可扩展**: 通过 `multiInject(AuthEndpoint)` 支持多种认证方式的插件式加载。
+- `verifyJwt(jwt, isRoomClaim)`：这意味着连接阶段用的 JWT 必须能解成 roomClaim。
+- `existingPeer` 分支：断线重连复用 Peer，只替换 transport，这会影响你们对“重连是否算同一会话”的理解。
 
-## 依赖分析
-模块内部依赖关系清晰，核心依赖注入图如下：
+## 2) 房间与 join 审批：`requestJoin()` 到底在等谁
 
-```mermaid
-graph TD
-IM[inversifyModule] --> CS[CollaborationServer]
-IM --> RM[RoomManager]
-IM --> MR[MessageRelay]
-IM --> SLE[SimpleLoginEndpoint]
-IM --> OAE[OAuthEndpoint]
-CS --> RM
-CS --> MR
-CS --> PM[PeerManager]
-RM --> MR
-RM --> CM[CredentialsManager]
-CS --> CM
-MR --> CM
-SLE --> CM
-OAE --> CM
+Guest join 一个房间时，你在客户端会看到 “WaitingForHost” 或 “JoinTimeout”。这不是 UI 编的状态，而是 server 在 `RoomManager.requestJoin()` 里明确写出来的状态机。
+
+这段代码的关键点有三个：
+
+1. 给 join 请求生成 `responseId`，用于客户端轮询。
+2. 向 Host 发送 `Messages.Peer.Join` request，并等待 response（5 分钟超时）。
+3. Host 允许加入时，server 给 Guest 签发新的 roomToken（JWT），用 `roomClock` 确保会话唯一。
+
+```ts
+async requestJoin(room: Room, user: User): Promise<string> {
+    const responseId = this.credentials.secureId();
+    const timeout = setTimeout(() => {
+        pollResult.update({
+            code: 'JoinTimeout',
+            message: 'Join request has timed out',
+            params: [],
+            failure: true
+        });
+        pollResult.dispose();
+    }, 300_000); // 5 minutes of timeout
+    // ...
+    const requestMessage = RequestMessage.create(Messages.Peer.Join, this.credentials.secureId(), '', room.host.id, [user]);
+    const responsePromise = this.messageRelay.sendRequest(room.host, requestMessage, 300_000);
+    responsePromise.then(async response => {
+        if (ResponseMessage.is(response)) {
+            const joinResponse = response.content.response as JoinResponse | undefined;
+            if (!joinResponse) {
+                pollResult.update({ failure: true, code: 'JoinRejected', params: [], message: 'Join request has been rejected' });
+                return;
+            }
+            const claim: RoomClaim = { room: room.id, user: { ...user }, roomClock: ++room.clock };
+            const jwt = await this.credentials.generateJwt(claim);
+            const joinRoomResponse: JoinRoomResponse = { roomId: room.id, roomToken: jwt, workspace: joinResponse.workspace, host: room.host.toProtocol() };
+            pollResult.update(joinRoomResponse);
+        }
+    });
+    pollResult.update({ failure: false, code: 'WaitingForHost', params: [], message: 'Waiting for host to accept join request' });
+    return responseId;
+}
 ```
 
-## 性能考量
-在高并发场景下，可采取以下优化措施：
+这段代码最“真实”的地方在于：它说明 join 不是瞬时的，而是一个“Host 参与的审批流程”。因此当你排查 join 超时时，建议按这条链路看：
 
-1. **连接复用**: `PeerManager` 支持相同 JWT 的连接复用，减少重复认证开销。
-2. **消息批处理**: 可扩展 `MessageRelay` 支持消息批处理，减少网络往返。
-3. **房间分片**: 当房间数量巨大时，可引入房间分片或集群模式，避免单点瓶颈。
-4. **缓存 JWT**: 使用 Redis 缓存已验证的 JWT，避免重复解析。
-5. **日志级别控制**: 生产环境使用 `info` 或 `warn` 级别，减少 `debug` 日志 I/O 开销。
+- Host 端是否收到了 join request（见 VS Code 端的 `onJoinRequest` 弹窗逻辑）。
+- request 是否在 `sendRequest` 层超时（消息是否路由到了 host peer）。
+- poll 是否还在（`pollResults` 是否被提前 dispose）。
 
-### 日志监控配置
-- 使用 `Logger` 接口统一日志输出。
-- `ConsoleLogger` 实现将日志输出到控制台。
-- 关键操作（如房间创建、用户加入）记录 `info` 级别日志。
-- 错误（如连接失败、认证失败）记录 `error` 级别日志，便于监控与排查。
+更细的房间生命周期拆解在 [房间与用户管理机制](/collaboration_tools/核心模块详解/open-collaboration-server模块/房间与用户管理机制/房间与用户管理机制.md)。
 
-## 故障排查指南
-常见问题及解决方案：
+## 3) 广播与加密：为什么 `sendBroadcast()` 要“裁剪 key”
 
-1. **无法连接 WebSocket**
-   - 检查 `CORS` 配置，确保 `oct-cors-allowed-origins` 正确。
-   - 确认客户端发送了 `x-oct-jwt` 和 `x-oct-public-key` 头。
+协作里最频繁的消息是 broadcast（比如 Yjs update、awareness update、成员加入/离开通知）。而消息级加密意味着：同一条广播消息里，会带很多个“给不同 peer 的对称密钥加密结果”。但某个 peer 收到广播时，其实只需要属于自己的那把 key。
 
-2. **认证失败**
-   - 检查 `config.json` 中 `oct-activate-simple-login` 是否为 `true`（简易登录）。
-   - OAuth 配置需提供 `clientid` 和 `clientsecret`。
-   - 确认 `oct-base-url` 与实际访问地址一致。
+`MessageRelay.sendBroadcast()` 里就有一个很关键的工程化处理：给每个 peer 发消息时，只保留它那一条 key，其余全裁剪掉。
 
-3. **用户无法加入房间**
-   - 检查 JWT 是否过期或无效。
-   - 确认房间 ID 存在且未被关闭。
-   - 查看服务日志是否有 `RoomNotFound` 或 `JoinTimeout` 错误。
+```ts
+for (const peer of room.peers) {
+    if (peer !== origin) {
+        // Find the key for the target peer
+        const peerKey = message.metadata.encryption.keys.find(e => e.target === peer.id);
+        if (peerKey && BroadcastMessage.isEncrypted(message)) {
+            // Adjust the message to only contain the key for the target peer
+            // All other keys are not of use for the target peer
+            const messageWithSingleKey: EncryptedBroadcastMessage = {
+                ...message,
+                metadata: {
+                    ...message.metadata,
+                    encryption: { keys: [peerKey] }
+                }
+            };
+            peer.channel.sendMessage(messageWithSingleKey);
+        } else if (!Message.isEncrypted(message)) {
+            peer.channel.sendMessage(message);
+        }
+    }
+}
+```
 
-4. **消息不同步**
-   - 检查 `MessageRelay.sendBroadcast()` 是否正常执行。
-   - 确认客户端正确处理了 `BroadcastMessage`。
+这段代码解决的问题是：“让加密广播在工程上可用（避免把所有人的 key 都塞给每个人）”。如果你们之后要扩展新的广播消息类型，建议保持同样的策略：广播时按目标裁剪 key，避免把无关密钥分发出去。
 
-## 结论
-`open-collaboration-server` 模块设计精良，采用依赖注入实现高内聚低耦合，通过 `RoomManager` 和 `MessageRelay` 高效管理协作会话。其灵活的认证体系支持多种登录方式，为实时协作应用提供了坚实的基础。通过合理的性能调优与日志监控，可稳定支撑高并发场景。
+## Summary
+
+- server 端主线建议抓三条：`connectChannel()`（入口与重连策略）、`RoomManager.requestJoin()`（join 审批与轮询）、`MessageRelay.sendBroadcast()`（广播与加密裁剪）。
+- join 的超时/等待不是 UI 凭空出现的，而是 server 明确维护的状态机；排障要按“host 是否审批 -> request 是否超时 -> poll 是否存活”走。
+- 下一步阅读建议：
+  - 启动与 API： [服务架构与启动流程](/collaboration_tools/核心模块详解/open-collaboration-server模块/服务架构与启动流程.md)
+  - 房间与 Peer： [房间与用户管理机制](/collaboration_tools/核心模块详解/open-collaboration-server模块/房间与用户管理机制/房间与用户管理机制.md)
+  - 广播与消息路由： [消息中继与广播系统](/collaboration_tools/核心模块详解/open-collaboration-server模块/消息中继与广播系统.md)
+  - 认证与接入： [认证与安全接入](/collaboration_tools/核心模块详解/open-collaboration-server模块/认证与安全接入/认证与安全接入.md)
+

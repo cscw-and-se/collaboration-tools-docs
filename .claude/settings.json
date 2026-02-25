@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(# Check the stash''s 扩展开发指南 files - are they the old AI-generated ones? git show \"\"stash@{0}:collaboration_tools/扩展开发指南/协议扩展与消息定制.md\"\")",
+      "Bash(# Check the stash''s 扩展开发指南/自定义认证提供者.md git show \"\"stash@{0}:collaboration_tools/扩展开发指南/自定义认证提供者.md\"\")",
+      "Bash(# Check the stash''s 协议规范 files - are they the old AI-generated ones? git show \"\"stash@{0}:collaboration_tools/协议规范/安全特性.md\"\")",
+      "Bash(# Check the stash''s 核心模块详解 files - are they improved versions? git show \"\"stash@{0}:collaboration_tools/核心模块详解/open-collaboration-server模块/服务架构与启动流程.md\"\")",
+      "Bash(# Check the stash''s 核心模块详解 files - are they improved versions? git show \"\"stash@{0}:collaboration_tools/核心模块详解/open-collaboration-server模块/消息中继与广播系统.md\"\")",
+      "Bash(# Check the stash''s 核心模块详解 files - are they improved versions? git show \"\"stash@{0}:collaboration_tools/核心模块详解/open-collaboration-vscode模块/文件系统代理与远程访问.md\"\")",
+      "Bash(# Check the stash''s 核心模块详解 files - are they improved versions? git show \"\"stash@{0}:collaboration_tools/核心模块详解/open-collaboration-vscode模块/扩展架构与生命周期.md\"\")",
+      "Bash(# Check stash line counts for the same files git show \"\"stash@{0}:collaboration_tools/核心模块详解/open-collaboration-vscode模块/核心服务与状态管理.md\"\")",
+      "Bash(wc:*)",
+      "Bash(# Check the stash''s 安全与认证 files - these were deleted in our work but stash has improved versions git show \"\"stash@{0}:collaboration_tools/安全与认证/认证机制.md\"\")",
+      "Bash(# Check the stash''s 扩展开发指南 files - these were deleted in our work git show \"\"stash@{0}:collaboration_tools/扩展开发指南/编辑器集成指南.md\"\")",
+      "Bash(# Check the stash''s 协议规范 files - these were deleted in our work git show \"\"stash@{0}:collaboration_tools/协议规范/安全特性.md\"\")",
+      "Bash(# Check the stash''s 协议规范 files content quality git show \"\"stash@{0}:collaboration_tools/协议规范/传输层适配.md\"\")",
+      "Bash(# Check the stash''s 扩展开发指南 files content quality - 自定义认证提供者 git show \"\"stash@{0}:collaboration_tools/扩展开发指南/自定义认证提供者.md\"\")",
+      "Bash(# Check the stash''s 扩展开发指南/扩展开发指南.md git show \"\"stash@{0}:collaboration_tools/扩展开发指南/扩展开发指南.md\"\")",
+      "Bash(# Check the stash''s 扩展开发指南/扩展开发指南.md - look for the AuthEndpoint template git show \"\"stash@{0}:collaboration_tools/扩展开发指南/扩展开发指南.md\"\")"
+    ]
+  }
+}

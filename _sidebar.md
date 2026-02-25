@@ -4,11 +4,16 @@
   - [OT算法 vs CRDT算法](rcp/ot_vs_crdt.md)
 - 什么是AI编程
   - [为什么使用AI编程](ai_coding/why_ai_coding.md)
+  - [与AI结对编程](ai_coding/pair_programming_with_ai.md)
+  - [Packy API 中转站](ai_coding/packy_api_proxy.md)
+  - [Claude Code](ai_coding/claude_code.md)
+  - [用AI辅助阅读源码](ai_coding/ai_for_reading_code.md)
   - [GitHub Education](ai_coding/github_education.md)
   - [Cursor Education](ai_coding/cursor_education.md)
   - [如何使用 CodeX 进行 vibe coding](ai_coding/using_codex.md)
   - [Gemini Cli](ai_coding/gemini_cli.md)
 - 技术栈
+  - [软件开发前置知识速通](tech_stack/software_dev_prerequisites.md)
   - [Shell](tech_stack/shell.md)
   - [TypeScript](tech_stack/typescript.md)
   - [Y.js](tech_stack/yjs.md)
@@ -31,18 +36,22 @@
   - [如何进行文献综述](random_notes/how_to_write_a_literature_review.md)
 - 项目概览
   - [项目概览](collaboration_tools/project_overview.md)
-  - [技术栈与架构](collaboration_tools/技术栈与架构.md)
   - [项目是怎么运行的](collaboration_tools/how_it_works.md)
-  - [数据模型与状态同步](collaboration_tools/数据模型与状态同步.md) 
+  - [技术栈与架构](collaboration_tools/技术栈与架构.md)
+  - [数据模型与状态同步](collaboration_tools/数据模型与状态同步.md)
+  - [二次开发指南](collaboration_tools/secondary_dev_guide.md)
   - 安全与认证
     - [安全与认证](collaboration_tools/安全与认证/安全与认证.md)
-    - [通信安全](collaboration_tools/安全与认证/通信安全.md)
     - [认证机制](collaboration_tools/安全与认证/认证机制.md)
     - [简易登录](collaboration_tools/安全与认证/简易登录.md)
-  - [核心模块详解](collaboration_tools/核心模块详解/核心模块详解.md)
-  - [open-collaboration-agent模块](collaboration_tools/核心模块详解/open-collaboration-agent模块.md)
-  - [open-collaboration-yjs模块](collaboration_tools/核心模块详解/open-collaboration-yjs模块.md)
-  - [open-collaboration-monaco模块](collaboration_tools/核心模块详解/open-collaboration-monaco模块.md)
+    - [通信安全](collaboration_tools/安全与认证/通信安全.md)
+- 项目分模块讲解
+  - open-collaboration-agent模块
+    - [open-collaboration-agent模块](collaboration_tools/核心模块详解/open-collaboration-agent模块.md)
+  - open-collaboration-yjs模块
+    - [open-collaboration-yjs模块](collaboration_tools/核心模块详解/open-collaboration-yjs模块.md)
+  - open-collaboration-monaco模块
+    - [open-collaboration-monaco模块](collaboration_tools/核心模块详解/open-collaboration-monaco模块.md)
   - open-collaboration-vscode模块
     - [open-collaboration-vscode模块](collaboration_tools/核心模块详解/open-collaboration-vscode模块/open-collaboration-vscode模块.md)
     - [UI集成与命令系统](collaboration_tools/核心模块详解/open-collaboration-vscode模块/UI集成与命令系统.md)
@@ -58,8 +67,11 @@
     - [用户与对等节点管理](collaboration_tools/核心模块详解/open-collaboration-server模块/房间与用户管理机制/用户与对等节点管理.md)
     - [认证与安全接入](collaboration_tools/核心模块详解/open-collaboration-server模块/认证与安全接入/认证与安全接入.md)
     - [简易登录机制](collaboration_tools/核心模块详解/open-collaboration-server模块/认证与安全接入/简易登录机制.md)
+    - [OAuth集成认证](collaboration_tools/核心模块详解/open-collaboration-server模块/认证与安全接入/OAuth集成认证.md)
+    - [Keycloak单点登录](collaboration_tools/核心模块详解/open-collaboration-server模块/认证与安全接入/Keycloak单点登录.md)
   - open-collaboration-protocol模块
     - [open-collaboration-protocol模块](collaboration_tools/核心模块详解/open-collaboration-protocol模块/open-collaboration-protocol模块.md)
+    - [协议方法对照表](collaboration_tools/核心模块详解/open-collaboration-protocol模块/协议方法对照表.md)
     - [核心连接机制](collaboration_tools/核心模块详解/open-collaboration-protocol模块/核心连接机制.md)
     - [消息编码与处理机制](collaboration_tools/核心模块详解/open-collaboration-protocol模块/消息编码与处理机制/消息编码与处理机制.md)
     - [消息编码机制](collaboration_tools/核心模块详解/open-collaboration-protocol模块/消息编码与处理机制/消息编码机制.md)
@@ -67,18 +79,6 @@
     - [消息加密与安全传输](collaboration_tools/核心模块详解/open-collaboration-protocol模块/消息编码与处理机制/消息加密与安全传输.md)
     - [传输层适配实现](collaboration_tools/核心模块详解/open-collaboration-protocol模块/传输层适配实现/传输层适配实现.md)
     - [工具组件与辅助功能](collaboration_tools/核心模块详解/open-collaboration-protocol模块/工具组件与辅助功能.md)
-  - 扩展开发指南
-    - [扩展开发指南](collaboration_tools/扩展开发指南/扩展开发指南.md)
-    - [编辑器集成指南](collaboration_tools/扩展开发指南/编辑器集成指南.md)
-    - [服务端插件开发](collaboration_tools/扩展开发指南/服务端插件开发.md)
-    - [协议扩展与消息定制](collaboration_tools/扩展开发指南/协议扩展与消息定制.md)
-    - [自定义认证提供者](collaboration_tools/扩展开发指南/自定义认证提供者.md)
-  - 协议规范
-    - [安全特性](collaboration_tools/协议规范/安全特性.md)
-    - [传输层适配](collaboration_tools/协议规范/传输层适配.md)
-    - [消息格式规范](collaboration_tools/协议规范/消息格式规范.md)
-    - [协议规范](collaboration_tools/协议规范/协议规范.md)
-    - [序列化与编码机制](collaboration_tools/协议规范/序列化与编码机制.md)
 - [代码规范](code_style.md)
 - 深入实时协同编程
   - [未来的研究方向](rcp/future_research.md)

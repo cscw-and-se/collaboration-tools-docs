@@ -1,178 +1,202 @@
-# 如何运行
+# 如何运行（带你跑通一场真实协作会话）
 
-## 环境准备
+这页的目标很简单：
 
-### Node.js 版本要求
+- 让你用最短路径跑通 **server + 两个 VS Code 实例**。
+- 跑通之后，你能解释“为什么 Guest 会出现 `oct://` 工作区”，以及“加入超时到底在等谁”。
 
-本项目要求 Node.js 版本不低于 `20.10.0`，推荐使用 `22.14.0` 以确保兼容性。您可以通过以下命令检查当前 Node.js 版本：
+如果你现在还没跑过一次完整流程，我建议你先不要急着读协议细节：先把这页做完，后面的文档会轻松很多。
+
+## 1. 环境准备
+
+### Node.js 版本
+
+本项目要求 Node.js 版本不低于 `20.10.0`，推荐使用 `22.14.0`。
 
 ```bash
 node --version
 ```
 
-预期输出：
-```
-v22.14.0
-```
+### 安装依赖与构建
 
-如果版本过低，请参考前文的nvm教程进行 Node.js 版本控制
-
-### 安装 npm 依赖
-
-在项目根目录执行以下命令安装所有工作区依赖：
+在 `collaboration-tools` 项目根目录执行：
 
 ```bash
 npm install
-```
-
-该命令将根据 `package.json` 中的 `workspaces` 配置，自动为 `packages/*` 下的所有子包安装依赖。
-
-**预期输出：**
-
-```
-added 1234 packages in 30s
-```
-
-### 构建项目
-
-使用以下命令构建所有 TypeScript 项目：
-
-```bash
 npm run build
 ```
 
-此命令将调用 `tsc -b tsconfig.build.json` 编译所有包的源码至 `lib` 目录。
+## 2. 启动后端服务（open-collaboration-server）
 
-**预期输出：**
-```
-> tsc -b tsconfig.build.json && npm run build --workspaces
-
-[build] src/app.ts -> lib/app.js
-[build] src/extension.ts -> lib/extension.js
-...
-```
-
-环境配置完成后，需要同时启动服务端（server）和客户端（VS Code的client）来启动项目，具体介绍如下：
-
-## 启动后端服务
-
-在项目根目录执行以下命令启动协作服务器：
+在 `collaboration-tools` 项目根目录执行：
 
 ```bash
-OCT_ACTIVATE_SIMPLE_LOGIN=true npm run start:dev # 本地开发启动
-OCT_ACTIVATE_SIMPLE_LOGIN=true npm run start # 服务器上使用该命令
+OCT_ACTIVATE_SIMPLE_LOGIN=true npm run start:dev
+# 服务器环境可使用
+# OCT_ACTIVATE_SIMPLE_LOGIN=true npm run start
 ```
 
-此命令将启动 `open-collaboration-server` 服务，并启用简单登录模式（无需 OAuth）。
+默认监听 `http://localhost:8100`。
 
-**预期输出：**
-```
-> open-collaboration-server@0.3.1 start:dev
-> tsx watch src/app.ts --hostname=localhost
+如果你后面遇到“怎么都连不上”，先别怀疑人生，第一步就是确认这个端口确实在监听。
 
-Server is running on http://localhost:8100
-WebSocket server listening on ws://localhost:8100
-Simple login activated
-```
+## 3. 启动 VS Code 扩展（open-collaboration-vscode）
 
-## 启动 VS Code 扩展进行协作
+协作至少需要两个客户端：一个 Host（共享者），一个 Guest（加入者）。
 
-由于实时协作需要至少两个客户端，所以为了方便调试，提供了两种启动的方法。
-**首先需要检查连接后端的`serverUrl`是否正确**(位于`packages/open-collaboration-vscode/package.json`)，以确保可以与后端建立连接。
+### 3.1 先确认 serverUrl 配置
 
-### 方法一：通过 VS Code 调试启动主机实例
+扩展会读 VS Code settings 里的 `oct.serverUrl`（默认值在扩展的 `package.json` 里）。
 
-1. 使用 VS Code 打开项目 `packages/open-collaboration-vscode` 目录
-2. 打开 `src/extension.ts` 文件
-3. 按下 `F5` 键启动调试
-4. 将打开一个新的 VS Code 窗口（主机实例）
+你可以先确认默认值是否是你要连接的 server：
 
-### 方法二：使用脚本启动访客实例
+- 位置：`collaboration-tools/packages/open-collaboration-vscode/package.json`
+- 字段：`oct.serverUrl`
 
-运行提供的 `launch-guest.sh` 脚本以启动第二个客户端：
+### 3.2 启动 Host（调试模式）
+
+1. 用 VS Code 打开 `collaboration-tools/packages/open-collaboration-vscode`
+2. 打开 `src/extension.ts`
+3. 按 `F5` 启动调试
+
+这会打开一个新的 Extension Development Host 窗口。这个窗口就是 Host 客户端。
+
+### 3.3 启动 Guest（脚本方式）
+
+项目提供了一个脚本帮你启动第二个 VS Code 实例：
 
 ```bash
-chmod +x packages/open-collaboration-vscode/launch-guest.sh
-./packages/open-collaboration-vscode/launch-guest.sh
+chmod +x collaboration-tools/packages/open-collaboration-vscode/launch-guest.sh
+./collaboration-tools/packages/open-collaboration-vscode/launch-guest.sh
 ```
 
-**脚本功能说明：**
-- 创建临时用户数据目录 `.temp-guest-data`
-- 创建临时扩展目录 `.temp-guest-extensions`
-- 创建符号链接将当前扩展链接到访客环境
-- 启动 VS Code 并指定独立的用户数据和扩展目录
+它会创建一套独立的临时用户数据目录，确保两个 VS Code 实例互不干扰。
 
-**预期行为：**
-- 打开第二个 VS Code 窗口
-- 两个实例可独立运行，互不影响
+## 4. 创建房间与加入房间（你会看到的现象，以及它为什么这么设计）
 
-### 创建协作房间
+### 4.1 Host 创建房间
 
-1. 点击底部状态栏的 Share（共享）按钮
-2. 屏幕顶部会弹出一个 quickpick，选择“创建协作会话”
+在 Host 窗口底部状态栏找到 Share（或 Open Collaboration）入口，创建新会话。
 
-![](../assets/create_new_collaboration_session.png)
+你会看到它最终弹出邀请码，这就是 `roomId`。把它发给 Guest。
 
-3. 选择“简单认证”方式
-4. 认证成功后，右下角会弹出一个包含邀请码的消息。将该邀请码分享给你希望加入会话的同伴。
+### 4.2 Guest 加入房间
 
-<img src="https://github.com/eclipse-oct/open-collaboration-tools/assets/34068281/c74d1618-9846-4919-8342-716f91c77f9a" alt="share popup" width="400"/>
+Guest 使用 Join Room 输入邀请码加入。
 
-5. 如果需要再次复制邀请码，可以再次点击底部工具栏的“Sharing”按钮，顶部会弹出 quickpick，允许你复制邀请码或关闭当前会话。
-6. 在访客实例中，使用 `Join Room` 命令并输入房间号即可加入协作
-7. 当有用户请求加入时，底部会弹出提示，询问你是否允许该用户加入。
+这里有个重要细节：**Guest 加入时通常会“切换工作区”，你会看到 `oct://` scheme**。
 
-<img src="https://github.com/eclipse-oct/open-collaboration-tools/assets/34068281/dcae527f-ccfe-466d-a27a-9bf37c978165" alt="join request" width="400"/>
+这不是装饰效果，而是设计选择：
 
-## 常见问题排查
+- Guest 不是直接打开你的本地文件系统。
+- Guest 看到的是一个“远程文件系统代理”。
 
-### 端口占用问题
+后面读 [文件系统代理与远程访问](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/文件系统代理与远程访问.md) 会讲清楚细节。
 
-**问题现象：**
+## 5. “加入超时”到底在等谁？（把 UI 现象和代码对齐）
 
-```
-Error: listen EADDRINUSE: address already in use :::8100
-```
+很多人第一次跑会卡在 join timeout：Guest 一直转圈，最后超时。
 
-**解决方案：**
+你可以先把它当成一个三方协作：
 
-1. 查找占用端口的进程：
-```bash
-lsof -i :8100
-```
+- Guest 向 server 提交 join 请求
+- server 把 join 请求转发给 Host
+- Host 弹窗询问是否允许加入
 
-2. 终止进程：
-```bash
-kill -9 <PID>
-```
+如果 Host 没点 Allow，Guest 就只能一直等。
 
-3. 或修改服务器端口（需同步修改客户端配置）
+### 5.1 Host 侧为什么会弹出“Allow / Deny”
 
-### 依赖缺失问题
-**问题现象：**
-```
-Error: Cannot find module 'open-collaboration-protocol'
-```
+Host 侧处理 join request 的逻辑在 `CollaborationInstance` 里。你可以看到它直接用 VS Code 弹窗让你选：
 
-**解决方案：**
-1. 确保在项目根目录执行 `npm install`
-2. 检查 `node_modules` 是否包含所有工作区包
-3. 清理并重新安装：
-```bash
-npm run clean
-npm install
+```ts
+connection.peer.onJoinRequest(async (_, user) => {
+    const message = vscode.l10n.t(
+        'User {0} via {1} login wants to join the collaboration session',
+        user.email ? `${user.name} (${user.email})` : user.name,
+        user.authProvider ?? 'unknown'
+    );
+    const allow = vscode.l10n.t('Allow');
+    const deny = vscode.l10n.t('Deny');
+    const result = await vscode.window.showInformationMessage(message, allow, deny);
+    const roots = vscode.workspace.workspaceFolders ?? [];
+    return result === allow ? {
+        workspace: {
+            name: vscode.workspace.name ?? 'Collaboration',
+            folders: roots.map(e => e.name)
+        }
+    } : undefined;
+});
 ```
 
-### 构建失败问题
-**问题现象：**
-```
-TS2307: Cannot find module '...'.
+这段代码同时解释了另一件事：
+
+- Host 允许加入时，会把当前 workspace 的文件夹列表返回给 Guest。
+
+### 5.2 Guest 加入后为什么会“替换工作区文件夹”
+
+Guest 拿到 server 返回的 workspace 信息后，会把它映射成 `oct://` 形式的 workspace folders。
+
+```ts
+const workspaceFolders = (vscode.workspace.workspaceFolders ?? []);
+const workspace = roomClaim.workspace;
+const newFolders = workspace.folders.map(folder => ({
+    name: folder,
+    uri: CollaborationUri.create(workspace.name, folder)
+}));
+const uri = await storeWorkspace(newFolders, this.context.globalStorageUri);
+if (uri) {
+    await vscode.commands.executeCommand(CodeCommands.OpenFolder, uri, {
+        forceNewWindow: false,
+        forceReuseWindow: true,
+        noRecentEntry: true
+    });
+    return true;
+} else {
+    return vscode.workspace.updateWorkspaceFolders(0, workspaceFolders.length, ...newFolders);
+}
 ```
 
-**解决方案：**
-1. 确保所有包已正确链接：
-```bash
-npm run build:clean
+你可以把它理解为：Guest 不是“打开你电脑上的目录”，而是“打开一个由扩展提供的远程工作区”。
+
+### 5.3 server 端 join 请求的等待与超时
+
+server 端 `RoomManager.requestJoin()` 做了两件事：
+
+- 给这次 join 请求分配一个 `responseId`（用于轮询 `/api/session/poll/:token`）
+- 把请求作为协议消息发给 Host，等待 Host 回包（最长 5 分钟）
+
+```ts
+const responseId = this.credentials.secureId();
+const timeout = setTimeout(() => {
+    pollResult.update({
+        code: 'JoinTimeout',
+        message: 'Join request has timed out',
+        params: [],
+        failure: true
+    });
+    pollResult.dispose();
+}, 300_000);
+
+const requestMessage = RequestMessage.create(Messages.Peer.Join, this.credentials.secureId(), '', room.host.id, [user]);
+const responsePromise = this.messageRelay.sendRequest(room.host, requestMessage, 300_000);
 ```
-2. 检查 `tsconfig.json` 的路径映射配置
-3. 验证 `package.json` 中的 `exports` 字段是否正确
+
+所以当你看到 join timeout，最优先的排查不是“是不是网络不好”，而是：
+
+- Host 端有没有弹窗？有没有点 Allow？
+
+## 6. 常见问题：遇到 X 先看 Y
+
+- **Guest 加入后工作区是空的**：先确认 Host 端当前 workspace folder 是否为空；再看 Guest 的 folder 映射逻辑（上面的 `newFolders` 段）。
+- **能看到文件但编辑不同步**：先看 [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)，确认文本同步链路；再回到 VS Code 端的 `collaboration-instance.ts` 看文档更新节流逻辑。
+- **Guest 编辑时被拒绝**：先看 Host 是否设置成 readonly，会触发 guest 文件系统 provider 以只读模式注册。
+
+## Summary
+- 先跑通一场会话：server + Host + Guest，看到 `oct://` 工作区是正常现象。
+- join timeout 绝大多数时候在等 Host 的 Allow，而不是网络。
+- Guest “替换工作区文件夹”是核心设计：它需要把 host workspace 映射成远程 URI 才能做文件系统代理。
+- 下一步建议阅读：
+  - [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)
+  - [open-collaboration-vscode 模块](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/open-collaboration-vscode模块.md)
+  - [房间生命周期管理](/collaboration_tools/核心模块详解/open-collaboration-server模块/房间与用户管理机制/房间生命周期管理.md)
