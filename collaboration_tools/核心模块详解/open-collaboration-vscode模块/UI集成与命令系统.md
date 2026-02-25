@@ -1,252 +1,157 @@
-# UI 集成与命令系统
+# UI 集成与命令系统（你点的每一下都去哪了）
 
-## 项目结构
+这套协作工具在 VS Code 里的交互非常克制：状态栏一个入口、命令面板一些命令、侧边栏一个 TreeView。
 
-`open-collaboration-vscode` 是 VS Code 扩展的核心模块，负责用户界面集成、命令注册、状态管理与协作会话控制。其主要结构如下：
+但对开发者来说，UI 不是装饰，它是调用链的起点。你想改 Share/Join 的行为，第一件事不是去看同步层，而是先回答：
 
-```
-src/
-├── commands-list.ts        # 命令常量定义
-├── commands.ts             # 命令注册与逻辑实现
-├── collaboration-status-view.ts # 自定义视图提供者
-├── collaboration-instance.ts   # 协作实例模型
-├── follow-service.ts       # 跟随功能服务
-└── utils/                  # 工具类（快速选择、设置、URI处理等）
-```
+- 用户点了哪个命令？
+- 这个命令最终调用了哪个 service？
+- service 创建/销毁了哪个 `CollaborationInstance`？
 
-该模块通过 `package.json` 中的 `contributes` 字段声明 UI 元素，并在 `extension.ts` 中初始化依赖注入容器与服务。
+这一页按“用户点一下 -> 命令 -> service”的路径把关键点讲清楚。
 
-## 核心命令定义与注册机制
+## 命令是怎么注册的：`Commands.initialize()`
 
-所有命令均通过 `commands-list.ts` 统一定义为常量，采用命名空间组织，确保类型安全与可维护性。
+`Commands.initialize()` 把所有命令一次性挂到 VS Code。下面这段代码你可以当作“命令总入口”：
 
-### 命令常量定义
-
-```typescript
-export namespace OctCommands {
-    export const FollowPeer = 'oct.followPeer';
-    export const StopFollowPeer = 'oct.stopFollowPeer';
-    export const JoinRoom = 'oct.joinRoom';
-    export const CreateRoom = 'oct.createRoom';
-    export const CloseConnection = 'oct.closeConnection';
-    export const SignOut = 'oct.signOut';
-}
-```
-
-这些字符串与 `package.json` 中 `contributes.commands` 的 `command` 字段一一对应。
-
-### 命令注册流程
-
-在 `commands.ts` 中，`Commands` 类使用依赖注入管理 VS Code 命令注册。`initialize()` 方法通过 `vscode.commands.registerCommand()` 将命令 ID 绑定到具体执行逻辑。
-
-```mermaid
-flowchart TD
-A["Commands.initialize()"] --> B["注册命令: oct.followPeer"]
-A --> C["注册命令: oct.joinRoom"]
-A --> D["注册命令: oct.createRoom"]
-A --> E["注册命令: oct.closeConnection"]
-B --> F["调用 FollowService.followPeer()"]
-C --> G["调用 RoomService.joinRoom()"]
-D --> H["调用 RoomService.createRoom()"]
-E --> I["离开协作会话并清理资源"]
-```
-
-## 命令执行流程与用户交互
-
-### 创建与加入房间
-
-- **创建房间 (`oct.createRoom`)**：仅当存在工作区且未连接时可用。触发 `CollaborationRoomService.createRoom()`，创建新会话并成为主机。
-- **加入房间 (`oct.joinRoom`)**：通过输入邀请码加入现有会话。调用 `roomService.joinRoom()` 处理连接逻辑。
-
-两者均通过快速选择面板（QuickPick）入口统一触发（`oct.enter`），根据当前状态动态显示“创建”或“加入”选项。
-
-### 开始跟随与停止跟随
-
-- **开始跟随 (`oct.followPeer`)**：接收可选的 `PeerWithColor` 参数，调用 `FollowService.followPeer(peerId)` 实现跟随指定用户。
-- **停止跟随 (`oct.stopFollowPeer`)**：调用 `followService.unfollowPeer()` 停止当前跟随。
-
-上下文菜单中，`viewItem == peer` 时显示“开始跟随”，`viewItem == followedPeer` 时显示“停止跟随”。
-
-### 断开连接与登出
-
-- **关闭连接 (`oct.closeConnection`)**：
-  - 调用当前 `CollaborationInstance.leave()` 通知服务器。
-  - 调用 `dispose()` 清理本地资源。
-  - 若非主机，则执行 `workbench.action.closeFolder` 关闭工作区。
-- **登出 (`oct.signOut`)**：
-  - 先执行 `CloseConnection`。
-  - 调用 `secretStorage.deleteUserTokens()` 删除用户凭证。
-  - 显示信息提示：“已成功登出！”。
-
-```mermaid
-sequenceDiagram
-participant User
-participant Command as Commands
-participant RoomService
-participant Instance as CollaborationInstance
-User->>Command : 执行 oct.createRoom
-Command->>RoomService : createRoom()
-RoomService->>Instance : new CollaborationInstance(...)
-Instance->>Server : 连接并注册房间
-Server-->>Instance : 成功响应
-Instance-->>RoomService : 返回实例
-RoomService-->>Command : 完成
-Command-->>User : 会话创建成功
-```
-
-## 自定义视图与树形数据模型
-
-`collaboration-status-view.ts` 实现了 `TreeDataProvider`，为 `oct.roomView` 提供树形数据。
-
-### 数据模型
-
-- **数据源**：`CollaborationInstance.connectedUsers`，类型为 `PeerWithColor[]`。
-- **节点类型**：`PeerWithColor` 包含用户 ID、名称、颜色、是否为主机等信息。
-
-### TreeDataProvider 实现
-
-- **`getChildren()`**：根节点返回所有连接用户；不支持子节点展开。
-- **`getTreeItem()`**：
-  - 显示用户名作为标签。
-  - 描述字段显示“(你)”或“(主机)”等标签。
-  - 图标使用 `circle-filled` ThemeIcon，颜色由 `peer.color` 决定。
-  - `contextValue` 根据是否为自己、是否被跟随动态设置为 `self`、`peer` 或 `followedPeer`，用于上下文菜单过滤。
-
-### 动态更新机制
-
-- `onConnection()` 方法接收 `CollaborationInstance` 实例。
-- 监听 `onDidUsersChange` 事件，在用户列表变化时触发 `onDidChangeTreeDataEmitter.fire()`。
-- 监听 `onDidDispose` 事件，在会话结束时清空数据并刷新视图。
-
-## 菜单与上下文集成
-
-命令通过 `package.json` 的 `contributes.menus` 字段绑定到不同 UI 区域。
-
-### 命令面板 (`commandPalette`)
-
-```json
-{
-  "command": "oct.followPeer",
-  "when": "oct.connection"
-}
-```
-
-- **条件**：仅在已建立协作连接时显示。
-
-### 视图项上下文菜单 (`view/item/context`)
-
-```json
-{
-  "command": "oct.followPeer",
-  "when": "viewItem == peer",
-  "group": "inline"
-}
-```
-
-- **条件**：右键点击非自身的用户项时显示。
-- **分组**：`inline` 确保显示在菜单顶部。
-
-```json
-{
-  "command": "oct.stopFollowPeer",
-  "when": "viewItem == followedPeer",
-  "group": "inline"
-}
-```
-
-- **条件**：右键点击正在跟随的用户时显示。
-
-### 图标与分类
-
-- 所有命令在 `contributes.commands` 中定义了 `title`、`category` 和 `icon`（如 `$(eye)`、`$(vm-connect)`）。
-- `oct.dev.fuzzing` 仅在开发环境（`process.env.DEVELOPMENT === 'true'`）下注册并启用。
-
-## 错误处理与用户提示最佳实践
-
-### 用户提示 (`showInformationMessage`)
-
-- **成功提示**：`vscode.window.showInformationMessage()` 用于确认操作成功，如登出提示。
-- **带操作提示**：`inviteCallback()` 中，复制邀请码后显示消息，并提供“复制带服务器URL”和“复制Web客户端URL”两个可点击操作。
-
-### 进度指示
-
-虽然当前代码未使用 `withProgress`，但推荐在以下场景使用：
-- **长时间连接操作**：如 `joinRoom` 或 `createRoom` 可能因网络延迟耗时。
-- **文件同步**：大规模文件同步时显示进度条。
-
-示例：
-```typescript
-await vscode.window.withProgress({
-    location: vscode.ProgressLocation.Notification,
-    title: "正在加入协作会话..."
-}, async (progress) => {
-    // 执行连接逻辑
-});
-```
-
-### 错误处理
-
-- **空编辑器检查**：`DevFuzzing` 命令中检查 `activeTextEditor` 是否存在。
-- **资源清理**：`CloseConnection` 确保调用 `dispose()` 防止内存泄漏。
-- **环境检查**：开发命令通过 `process.env` 安全启用。
-
-## 扩展开发指南：添加新命令
-
-### 步骤 1：定义命令常量
-
-在 `commands-list.ts` 中添加新命令：
-
-```typescript
-export namespace OctCommands {
-    export const NewCommand = 'oct.newCommand';
-}
-```
-
-### 步骤 2：在 package.json 中声明
-
-```json
-"contributes": {
-    "commands": [
-        {
-            "command": "oct.newCommand",
-            "title": "%oct.newCommand%",
-            "category": "Open Collaboration Tools",
-            "icon": "$(new-icon)"
-        }
-    ],
-    "menus": {
-        "commandPalette": [
-            {
-                "command": "oct.newCommand",
-                "when": "oct.connection"
+```ts
+initialize(): void {
+    this.context.subscriptions.push(
+        vscode.commands.registerCommand(OctCommands.FollowPeer, (peer?: PeerWithColor) => this.followService.followPeer(peer?.id)),
+        vscode.commands.registerCommand(OctCommands.StopFollowPeer, () => this.followService.unfollowPeer()),
+        vscode.commands.registerCommand(OctCommands.Enter, async () => {
+            await this.openMainQuickpick();
+        }),
+        vscode.commands.registerCommand(OctCommands.JoinRoom, async () => {
+            await this.roomService.joinRoom();
+        }),
+        vscode.commands.registerCommand(OctCommands.CreateRoom, async () => {
+            await this.roomService.createRoom();
+        }),
+        vscode.commands.registerCommand(OctCommands.CloseConnection, async () => {
+            const instance = CollaborationInstance.Current;
+            if (instance) {
+                await instance.leave();
+                instance.dispose();
+                this.contextKeyService.setConnection(undefined);
+                if (!instance.host) {
+                    // Close the workspace if the user is not the host
+                    await vscode.commands.executeCommand(CodeCommands.CloseFolder);
+                }
             }
-        ]
+        })
+    );
+    this.statusService.initialize(OctCommands.Enter);
+}
+```
+
+这段代码解决的问题是：“把 UI 能触发的动作，稳定地落到 service 上”。
+
+- 上游：用户通过状态栏/命令面板/快捷键触发命令 ID。
+- 下游：`roomService.createRoom/joinRoom` 进入会话；`CloseConnection` 负责 leave + dispose +（Guest 侧）关闭工作区。
+
+二次开发时，你更常改的是 `openMainQuickpick*` 的内容（也就是用户看到的那一屏），而不是 `registerCommand` 本身。
+
+## 为什么状态栏点一下就弹面板：`openMainQuickpickOutsideSession()`
+
+扩展把“进入协作”的入口统一收敛到了一个 QuickPick：
+
+- 不在会话时给 Create/Join。
+- 在会话里给 Invite/Stop/Configure。
+
+不在会话时的选项生成逻辑很直白：
+
+```ts
+private async openMainQuickpickOutsideSession(): Promise<void> {
+    const items: Array<QuickPickItem<'join' | 'create'>> = [
+        {
+            key: 'join',
+            label: '$(vm-connect) ' + vscode.l10n.t('Join Collaboration Session'),
+            detail: vscode.l10n.t('Join an open collaboration session using an invitation code')
+        }
+    ];
+    if (vscode.workspace.workspaceFolders?.length) {
+        items.unshift({
+            key: 'create',
+            label: '$(add) ' + vscode.l10n.t('Create New Collaboration Session'),
+            detail: vscode.l10n.t('Become the host of a new collaboration session in your current workspace')
+        });
+    }
+    const index = await showQuickPick(items, {
+        placeholder: vscode.l10n.t('Select Collaboration Option')
+    });
+    if (index === 'create') {
+        await this.roomService.createRoom();
+    } else if (index === 'join') {
+        await this.roomService.joinRoom();
     }
 }
 ```
 
-### 步骤 3：实现命令逻辑
+这里有一个很“人类”的产品决定：
 
-在 `commands.ts` 的 `initialize()` 中注册：
+- 没有工作区就不允许 Create（因为 Host 必须共享一个真实 workspace），但仍然允许 Join。
 
-```typescript
-vscode.commands.registerCommand(OctCommands.NewCommand, () => {
-    // 实现你的逻辑
-    vscode.window.showInformationMessage('新命令执行成功！');
-});
-```
+## 在会话里有哪些操作：Invite/Stop/Configure
 
-### 步骤 4：添加多语言支持
+在会话里，QuickPick 会根据你是不是 Host 显示不同选项。Host 会多一个“Configure permissions”。
 
-在 `package.nls.json` 及各语言包中添加：
+下面这段代码就是“会话内 QuickPick 的行为开关”：
 
-```json
-{
-    "oct.newCommand": "新命令"
+```ts
+private async openMainQuickpickInSession(instance: CollaborationInstance): Promise<void> {
+    const items: Array<QuickPickItem<'invite' | 'stop' | 'update'>> = [
+        {
+            key: 'invite',
+            label: '$(clippy) ' + vscode.l10n.t('Invite Others (Copy Code)'),
+            detail: vscode.l10n.t('Copy the invitation code to the clipboard to share with others')
+        }
+    ];
+    if (instance.host) {
+        items.push({
+            key: 'update',
+            label: '$(gear) ' + vscode.l10n.t('Configure Collaboration Session'),
+            detail: vscode.l10n.t('Configure the options and permissions of the current session')
+        });
+        items.push({
+            key: 'stop',
+            label: '$(circle-slash) ' + vscode.l10n.t('Stop Collaboration Session'),
+            detail: vscode.l10n.t('Stop the collaboration session, stop sharing all content and remove all participants')
+        });
+    } else {
+        items.push({
+            key: 'stop',
+            label: '$(circle-slash) ' + vscode.l10n.t('Leave Collaboration Session'),
+            detail: vscode.l10n.t('Leave the collaboration session, closing the current workspace')
+        });
+    }
+    const result = await showQuickPick(items, {
+        placeholder: vscode.l10n.t('Select Collaboration Option')
+    });
+    if (result === 'invite') {
+        await this.inviteCallback(instance);
+    } else if (result === 'update') {
+        await this.updatePermissions(instance);
+    } else if (result === 'stop') {
+        await vscode.commands.executeCommand(OctCommands.CloseConnection);
+    }
 }
 ```
 
-### 步骤 5：测试与调试
+这段代码的价值在于：把“Host/Guest 角色差异”直接体现在 UI 上。
 
-- 使用 `F5` 启动扩展开发主机。
-- 在命令面板中搜索“新命令”进行测试。
+## TreeView 为什么会自动更新：UI 不靠手动刷新
+
+命令系统之外，还有一个容易忽略的点：UI 更新不是靠“每次操作后手动刷新”，而是事件驱动。
+
+`CollaborationStatusService` 会监听 `roomService.onDidJoinRoom`，把状态栏、TreeView 数据源、context keys 一起切换到“已连接态”。这些细节在 [核心服务与状态管理](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/核心服务与状态管理.md) 里会用代码讲清楚。
+
+## Summary
+
+- UI 的核心入口在 `Commands.initialize()`：命令注册决定了调用链从哪开始。
+- QuickPick 是整个扩展的主入口：会话外 Create/Join，会话内 Invite/Stop/Configure。
+- 二次开发最常见的改动点：QuickPick 选项、邀请链接生成、权限配置入口、断开连接时的清理行为。
+- 下一步阅读建议：
+  - Create/Join 的连接与工作区切换： [核心服务与状态管理](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/核心服务与状态管理.md)
+  - `oct://` 文件树如何工作： [文件系统代理与远程访问](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/文件系统代理与远程访问.md)
+
