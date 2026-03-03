@@ -12,6 +12,7 @@
   - [Cursor Education](ai_coding/cursor_education.md)
   - [如何使用 CodeX 进行 vibe coding](ai_coding/using_codex.md)
   - [Gemini Cli](ai_coding/gemini_cli.md)
+  - [2025 — Agent 元年](ai_coding/AGENTS.md)
 - 技术栈
   - [软件开发前置知识速通](tech_stack/software_dev_prerequisites.md)
   - [Shell](tech_stack/shell.md)
