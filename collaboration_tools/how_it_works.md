@@ -26,6 +26,8 @@ npm install
 npm run build
 ```
 
+如果编译失败用 `npm ci` 试试。
+
 ## 2. 启动后端服务（open-collaboration-server）
 
 在 `collaboration-tools` 项目根目录执行：
