@@ -35,6 +35,7 @@
   - [如何使用 EndNote 进行文献管理](random_notes/using_endnote.md)
   - [如何优雅地编辑本文档](random_notes/how_to_write_this_doc.md)
   - [如何进行文献综述](random_notes/how_to_write_a_literature_review.md)
+  - [我推荐的公众号](random_notes/recommended_wechat_accounts.md)
 - 项目概览
   - [项目概览](collaboration_tools/project_overview.md)
   - [项目是怎么运行的](collaboration_tools/how_it_works.md)
