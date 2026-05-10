@@ -4,14 +4,15 @@
   - [OT算法 vs CRDT算法](rcp/ot_vs_crdt.md)
 - 什么是AI编程
   - [为什么使用AI编程](ai_coding/why_ai_coding.md)
+  - [AI 使用实践与边界](ai_coding/ai_practice_and_boundaries.md)
   - [与AI结对编程](ai_coding/pair_programming_with_ai.md)
-  - [Packy API 中转站](ai_coding/packy_api_proxy.md)
   - [Claude Code](ai_coding/claude_code.md)
+  - [如何使用 CodeX 进行 vibe coding](ai_coding/using_codex.md)
+  - [AI API 中转站怎么选](ai_coding/api_relay_station_selection.md)
   - [用AI辅助阅读源码](ai_coding/ai_for_reading_code.md)
+  - [Gemini CLI](ai_coding/gemini_cli.md)
   - [GitHub Education](ai_coding/github_education.md)
   - [Cursor Education](ai_coding/cursor_education.md)
-  - [如何使用 CodeX 进行 vibe coding](ai_coding/using_codex.md)
-  - [Gemini Cli](ai_coding/gemini_cli.md)
   - [2025 — Agent 元年](ai_coding/AGENTS.md)
 - 技术栈
   - [软件开发前置知识速通](tech_stack/software_dev_prerequisites.md)

@@ -1,5 +1,7 @@
 # Gemini CLI: 在终端里与 AI 无缝对话
 
+> 2026 年 5 月更新：Gemini CLI 仍然值得了解，但它现在更像一个轻量命令行补充工具，而不是 AI coding 的主力入口。如果你要做复杂仓库修改，我会优先推荐 Claude Code 或 CodeX；如果你只是想在终端里快速问答、解释文件、体验 Gemini 或做一些管道式脚本，Gemini CLI 仍然方便。
+
 在我们之前推荐的 AI 工具中，大多是图形化界面的 IDE 或网页应用。但对于许多热爱命令行的开发者来说，如果能在终端窗口里直接与 AI 对话，那将是一种极致的效率体验。**Gemini CLI** 正是为此而生的工具。
 
 ## 1\. 什么是 Gemini CLI？
@@ -14,7 +16,7 @@ Gemini CLI 是 Google 官方推出的一个命令行接口（Command-Line Interf
 
 **官方仓库**: [https://github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli)
 
-PS: 如果下面的Gemini Cli无法顺利使用，可以体验一下[Qwen Code](https://github.com/QwenLM/qwen-code)，使用方式极度类似，但是在大陆使用更方便。
+PS: 如果下面的 Gemini CLI 无法顺利使用，可以体验一下 [Qwen Code](https://github.com/QwenLM/qwen-code)，使用方式极度类似，但是在大陆使用更方便。
 
 ## 2\. 安装与配置
 
