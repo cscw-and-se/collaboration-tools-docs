@@ -1,70 +1,88 @@
-# 如何使用 CodeX 进行 vibe coding
+# 如何通过中转站使用 Codex 等 Agent 工具
 
-![](assets/2025-12-14-17-10-50.png)
+把大象塞进冰箱只要三步，装好并用上 Codex 其实也差不多：**下载应用 → 决定走官方还是中转站 → 配置好开始用**。这篇主要讲国内网络、或者没有 GPT Plus 的情况下，怎么通过中转站把 Codex 跑起来。
 
-“Vibe coding” 可以理解为把 CodeX 当成常驻的结对编程搭档：你给出宏观目标、约束与上下文，它负责读写仓库、运行命令、同步进展。要让它在国内网络环境里稳定可用，一个常见方案是通过 **API 中转站** 接入海外模型。下面以 PackyCode 为例，给出一套可复制的流程。
+如果你已经有 GPT Plus / Pro，而且网络没问题，直接登录官方账号即可，不需要折腾中转站。至于中转站本身怎么挑、哪家质量更稳，可以看 [AI 中转站怎么选](/ai_coding/api_relay_station_selection.md)，也可以用 [Hvoy AI](https://www.hvoyai.com/) 查各家中转站的质量和评测，找一家适合自己的。
 
-## 为什么这里用 PackyCode 举例
+## 第一步：下载 Codex 应用
 
-- **合规又好买**：支持微信 / 支付宝充值，不需要海外信用卡即可获得 GPT-4.1、GPT-4o 等模型额度。
-- **OpenAI 兼容接口**：提供标准的 `Base URL + API Key`，CodeX 只要切换成 OpenAI-Compatible Provider 即可使用。
-- **可控的成本与限额**：可以设置日消费上限、并发上限，vibe coding 时不会因为误操作被扣到失联。
+前往 Codex 官方网站（[https://openai.com/zh-Hans-CN/codex/](https://openai.com/zh-Hans-CN/codex/)）下载应用。Mac 和 Windows 都可以下，前提是有一个能访问的网络，这里不展开。Windows 可能会碰到 Microsoft Store 的网络问题，搜一下一般都有解决方案。
 
-这不是说只能用 PackyCode。中转站选择会随价格、稳定性和渠道质量变化，具体怎么挑可以看 [AI API 中转站怎么选](/ai_coding/api_relay_station_selection.md)。
+![下载 Codex 应用](assets/codex-tutorial/01-download-app.png)
 
-## 前置准备
+## 第二步：两条路线，官方账号还是中转站
 
-1. 本地已经安装并可运行 CodeX CLI Harness（团队内部一般直接用 `codex` 脚本）。
-2. 仓库已 `git clone`，并在当前机器上具备读写权限；必要依赖（Node、Python、包管理器等）提前准备好。
-3. 注册 Packy 账号并完成实名认证。
+先看手里有没有 GPT Plus 或 Pro。
 
-## 在 Packy 控制台获取 Key
+**路线一：有官方账号。** 如果你已经有 Plus / Pro，或者有渠道获取且预算充足，直接打开 Codex，选择登录账号，登录你的 GPT 账号就行。
 
-1. **注册与实名认证**  
-   访问 [https://www.packyapi.com/](https://www.packyapi.com/)，使用手机号或邮箱注册。
+![登录 GPT 账号](assets/codex-tutorial/02-login.png)
 
-2. **充值准备额度**  
-   Packy 支持按量计费，建议先充值 50 元做体验，同时开启“余额提醒 / 每日消费提醒”，避免长时间 vibe coding 时忘记关。
+**路线二：走中转站。** 如果没有 Plus，或者充值困难，更推荐走中转站。所谓中转站，就是在你和 GPT 之间搭一座桥：你在中转站充值，把请求发给它，它用自己的号池把请求转给 GPT，帮你屏蔽掉中间那些复杂的环节。这部分会稍微繁琐一点，下面尽量讲得通俗些；如果还是卡住，可以直接问 AI，或者去找各家中转站的教程。
 
-3. **创建 OpenAI 兼容 Key**  
-   - 进入「控制台 -> API Key」页面，新建密钥。  
-   - 通道选择 **OpenAI 兼容**，模型分组选 `codex`（高推理）等。  
-   - 创建完成后会看到：  
-     - `Base URL`（通常类似 `https://api.packyapi.com/v1`，以控制台显示为准）  
-     - `API Key`
+## 第三步：用 CC Switch 配置中转站
 
-4. **确认模型定价与并发**  
-   Packy 会列出模型的单价、每分钟速率、最大并发数。建议优先选择控制台里最新、稳定、面向 Codex / coding 场景的模型。
+要接中转站，本来得手动改 Codex 的配置文件。好在现在有图形化工具帮忙，不用再去翻隐藏文件了。
 
-## 把 Packy 接入 CodeX
+前往 CC Switch 官网（[https://ccswitch.io/zh/](https://ccswitch.io/zh/)）下载这个软件，它可以帮助我们管理各个 Agent 的配置文件、接入不同的中转站。
 
-- 按Packy的文档配置
-  - 更方便的方法是按[文档](https://docs.packyapi.com/)安装CC-Switcher，链接：https://github.com/farion1231/cc-switch/releases/
-  - 直接添加codex配置，选择PackyCode，输入API Key
+![下载 CC Switch](assets/codex-tutorial/03-ccswitch.png)
 
-![](assets/2025-12-14-17-10-18.png)
+打开 CC Switch，在最顶上选择 Codex 图标。如果你是第一次用，这时候应该只有一个官方配置，目标是调成像下面这样——有一个自己配置的中转站。
 
-![](assets/2025-12-14-17-08-31.png)
+![CC Switch 配置页](assets/codex-tutorial/04-ccswitch-interface.png)
 
-![](assets/2025-12-14-17-08-43.png)
+点击上方的添加按钮，进入添加页面，里面已经预置了不少还不错的中转站，这里以 Packy 为例。
 
-- VS Code/Cursor等软件都可以下载CodeX插件，可以直接在里面vibe coding
+![CC Switch 添加中转站](assets/codex-tutorial/05-add-provider.png)
 
-![](assets/2025-12-14-17-07-43.png)
+点击 PackyCode，滑到下方可以看到它的官方网址（[https://www.packyapi.ai](https://www.packyapi.ai)）。
 
-## Vibe coding 的标准流程
+![选择 PackyCode](assets/codex-tutorial/06-select-packy.png)
 
-1. **先描述背景**：把本次会话的目标、重要文件、不能触碰的目录、代码规范等一次性告诉 CodeX。背景越清晰，来回越少。
-2. **要求先出计划**：让 CodeX 使用 Plan 工具输出 3～5 步操作，你确认后再让它执行。这样中途需要改方向时也容易插话。
-3. **保持节奏感**：每次只给一个明确目标（修 bug、写测试、补文档）；完成后让它总结进度，再继续下一个目标。
-4. **多让它自检**：定期让 CodeX `git status`、`git diff`、运行测试或静态检查，减少人工手动查验的时间。
-5. **及时中断与重启**：一旦发现跑偏，直接发送“stop/终止”让它停止命令，再给出新的指令。Packy 按 Token 计费，中断不会额外扣款。
-6. **贴上下文文件**：引用文件时记得提供相对路径（`src/api/index.ts`），必要时用 `sed -n '1,80p'` 这类指令把片段贴给它，减少反复查找。
+点击访问官网，如果有语言问题，可以按页面提示切换成中文。
 
-## 提示与习惯养成
+![Packy 官方网址](assets/codex-tutorial/07-packy-site.png)
 
-- Packy 控制台实时显示 Token 消耗，vibe coding 时可以开着网页，看到流量暴增立刻排查。
-- 团队使用时为每个项目单独生成一个 Key，方便统计费用、也方便在泄露时快速撤销。
-- 让 CodeX 定期“复述当前进度 + 下一步计划”，可以帮助建立持续的节奏感。即使会话断开，再次连接也能迅速恢复上下文。
+然后注册账号。
 
-完成以上配置，就能利用“中转站 + CodeX CLI”在本地仓库里顺滑地进行 vibe coding。多练习几次后，你会逐渐形成适合自己的提示模板和操作节奏。
+![Packy 界面](assets/codex-tutorial/08-packy-interface.png)
+
+接着来到钱包管理页面充值。Packy 要求至少充 50 元；如果你觉得贵，也可以换任意其他一家中转站，原则都是通的。充完之后要确保有余额，不然问 AI 也不会有响应。
+
+![充值](assets/codex-tutorial/09-recharge.png)
+
+![确认余额](assets/codex-tutorial/10-balance.png)
+
+然后添加令牌。配置时选 codex 相关的分组（还会有很多其他分组，比如 Claude），创建完成后复制 token。**注意千万不要把它发给任何人**，万一被盗刷就麻烦了。token 就是密钥，有了它就能用你的账号向中转站发请求、换取 GPT 的回复，同时扣你账户的余额。
+
+![添加令牌](assets/codex-tutorial/11-add-token.png)
+
+![配置分组](assets/codex-tutorial/12-config-token.png)
+
+![复制 token](assets/codex-tutorial/13-copy-token.png)
+
+回到 CC Switch 的「添加 API Key」页面，把刚复制的密钥粘贴进去并保存。
+
+![粘贴密钥](assets/codex-tutorial/14-paste-token.png)
+
+然后点击配置文件右侧的连通测试按钮，看看能不能连上。其实这里省略了一步「配置 Base URL」，不过 CC Switch 已经帮我们预置好了。
+
+![连通测试](assets/codex-tutorial/15-connection-test.png)
+
+到这里不出意外的话，重新启动 Codex，就能像下面这样跟它对话了。
+
+![开始对话](assets/codex-tutorial/16-run.png)
+
+如果还有问题，可以查查各家中转站的文档。
+
+![中转站文档](assets/codex-tutorial/17-docs.png)
+
+## 几个提醒
+
+- **中转站会变**：价格、稳定性、渠道质量都会变，别只认某一家。挑的时候可以参考 [AI 中转站怎么选](/ai_coding/api_relay_station_selection.md)，或者用 [Hvoy AI](https://www.hvoyai.com/) 看评测和排行。
+- **token 别外泄**：它等同于你的钱包，泄露后可能被直接刷光额度。
+- **先小额度试水**：第一次用建议少充一点，跑通流程、确认稳定之后再加大。
+- **配置方式通用**：换成别家中转站，步骤基本一样，只是网址、token 和分组名称不同。
+
+配置好之后，就可以在本地仓库里顺滑地用 Codex 干活了。多练几次，你会慢慢形成适合自己的提示模板和操作节奏。
