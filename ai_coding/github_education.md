@@ -1,5 +1,7 @@
 # GitHub Education 指南
 
+> **2026 年 9 月更新**：GitHub Education 现在的额度相比之前缩减了不少，Copilot 也没有以前那么好用了。如果你主要是想用上更强的 AI 模型和工具，更建议直接走官方订阅（比如 GPT、Claude、DeepSeek 的官方充值），或者用靠谱的 API 中转站。怎么选中转站可以参考 [AI 中转站怎么选](/ai_coding/api_relay_station_selection.md)。GitHub Education 依然值得申请，只是别再把它当成获取 AI 能力的主要途径。
+
 在前面的章节里，我们提到了 GitHub Copilot，并推荐大家使用它来提升编程效率。但 Copilot 是一个付费服务，对于尚无收入的学生来说可能是一笔不小的开销。
 
 幸运的是，GitHub 推出了一个名为 **GitHub Education** 的福利项目，它能让你**完全免费地使用 Copilot** 以及其他数十种顶级的开发者工具。

@@ -76,4 +76,4 @@ Claude Code 可以自主执行多步任务：读文件 → 修改 → 运行测�
 - 需要稳定的网络环境
 - Agentic 模式下会自动修改文件，建议在 git 仓库里使用，方便回滚
 - 详细文档：[Claude Code 官方文档](https://docs.anthropic.com/en/docs/claude-code)
-- 国内网络环境或预算敏感时，可以参考 [AI API 中转站怎么选](/ai_coding/api_relay_station_selection.md)
+- 国内网络环境或预算敏感时，可以参考 [AI 中转站怎么选](/ai_coding/api_relay_station_selection.md)

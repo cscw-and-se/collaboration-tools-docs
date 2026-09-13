@@ -1,4 +1,4 @@
-# AI API 中转站怎么选
+# AI 中转站怎么选
 
 ---
 
@@ -12,7 +12,7 @@
 
 ## 先用 Hvoy 做真假检测和价格参考
 
-[Hvoy AI](https://hvoy.ai/) 是一个用来检测 API 中转站、查看价格排行和阅读中转站评测的网站。它的首页可以填入 API 地址和 Key，对 Claude / GPT / Gemini 等模型做探测；也提供中转站推荐、榜单和评测文章。
+[Hvoy AI](https://www.hvoyai.com/) 是一个用来检测 API 中转站、查看价格排行和阅读中转站评测的网站。它的首页可以填入 API 地址和 Key，对 Claude / GPT / Gemini 等模型做探测；也提供中转站推荐、榜单和评测文章。
 
 > 截图时间：2026-05-10。Hvoy 页面和中转站价格变化很快，下面截图只代表当时页面状态。
 
@@ -32,8 +32,8 @@ Hvoy 本身也提醒过：技术检测不等于绝对安全。中转站会受上
 
 | 中转站 | 适合场景 | 我的判断 |
 |---|---|---|
-| RightCode | 编码、Codex / GPT 类任务、Claude Code | 价格比较有竞争力，接口响应和文档体验还可以，适合经常写代码的人 |
 | PackyCode | Claude Code、CodeX / Codex、Gemini、国内模型 | 使用体验稳定，生态和文档比较成熟，也比较适合新人从这里开始 |
+| RightCode | 编码、Codex / GPT 类任务、Claude Code | 价格比较有竞争力，接口响应和文档体验还可以，适合经常写代码的人 |
 | SSSAICode | 编码模型、Claude / GPT / Gemini 基础需求 | 价格和可靠性还可以，文档相对完善，可以作为备选或补充 |
 
 ![Hvoy 中转站榜单示例](assets/hvoy-ranking-2026-05.png)
@@ -45,28 +45,6 @@ Hvoy 本身也提醒过：技术检测不等于绝对安全。中转站会受上
 3. 看账单里输入、输出、缓存、倍率是否清楚。
 
 如果你需要报销或团队使用，还要额外确认是否能开发票、是否支持对公、是否能按项目或 Key 分账。个人随便试用可以粗一点，团队长期用就不能只看便宜。
-
-## PackyCode 作为一个可选入口
-
-之前仓库里单独有一篇很短的 Packy API 中转站介绍。现在更建议把 PackyCode 放回“怎么选中转站”的整体框架里看：它可以中转使用 Claude Code、CodeX / Codex、Gemini 等模型，在国内网络环境下会方便一些，也适合作为新人第一次尝试中转站的候选。
-
-如果只是想快速试水，可以小额充值体验一下；如果要长期使用，仍然要按上面的检查清单看价格、账单、稳定性、发票和模型质量。具体把中转站接入 CodeX 的操作，可以看 [如何使用 CodeX 进行 vibe coding](/ai_coding/using_codex.md)。
-
-## Claude 和 Codex 的价格差异
-
-从 2026 年 5 月的使用经验来看，Claude 相关通道普遍更贵。国内中转站上的 Claude 价格，大概可能是官方海外价格的 6 折到 7 折左右；CodeX / Codex 相关的 GPT 通道会便宜不少，可能大概是 2 折到 3 折左右。
-
-这个比例不是长期定价，也不是所有站点都一样，只能作为选型时的感性参考。实际使用时还要看：
-
-- 输入价和输出价分别是多少。
-- 缓存价格怎么算。
-- 是否有“看似便宜但容易掺水”的低价渠道。
-- 是否支持你正在用的工具，例如 Claude Code、Codex CLI、Cursor、VS Code 插件等。
-- 长任务是否容易断、限速、排队或超时。
-
-Hvoy 的评测页也会收录不同站点的价格、站点说明和更新记录，可以作为横向比较入口。
-
-![Hvoy API 中转站评测页](assets/hvoy-api-review-2026-05.png)
 
 ## 按任务选择模型
 
@@ -114,18 +92,6 @@ SSSAICode 这类站点可以作为备选观察对象，尤其适合在主力站�
 
 ![Hvoy SSSAICode 评测段落](assets/hvoy-sssaicode-2026-05.png)
 
-## 推荐策略
-
-比较稳妥的策略是：
-
-1. 先选一个可靠中转站作为主力，例如 RightCode 或 PackyCode。
-2. 再准备一个备用站点，避免主力站临时出问题时完全停工。
-3. 编码主力优先用 CodeX / Codex + GPT 5.5。
-4. 关键文书、重要表达、需要高自然度的内容，用 Claude Opus。
-5. 简单任务、低风险任务、预算有限时，用 DeepSeek、GLM、Qwen 等国产模型。
-
-不要把所有任务都塞给一个模型，也不要把所有钱都充进一个站。灵活组合，通常比迷信单一工具更稳。
-
 ## 需要持续更新
 
 本文信息截止到 2026 年 5 月，AI 模型、中转站价格、渠道质量和站点稳定性都会快速变化。上面的推荐只能作为阶段性经验参考，不适合当成长期不变的购买建议。
@@ -134,7 +100,7 @@ SSSAICode 这类站点可以作为备选观察对象，尤其适合在主力站�
 
 ## 延伸阅读
 
-- [Hvoy AI：API 中转站检测与排行](https://hvoy.ai/)
-- [Hvoy AI：API 中转站收录与评测](https://hvoy.ai/APIreview.html)
-- [如何使用 CodeX 进行 vibe coding](/ai_coding/using_codex.md)
-- [Claude Code](/ai_coding/claude_code.md)
+- [Hvoy AI：中转站检测与实测排名](https://www.hvoyai.com/)
+- [Hvoy AI：中转站目录](https://www.hvoyai.com/sites/)
+- [Hvoy AI：人工评测](https://www.hvoyai.com/APIreview.html)
+- [如何通过中转站使用 Codex 等 Agent 工具](/ai_coding/using_codex.md)

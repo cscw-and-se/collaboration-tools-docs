@@ -1,6 +1,6 @@
 # 2025 — The Year of Agents
 
-文件名玩了一个小巧思：`AGENTS.md` 除了表明这篇内容是关于 Agent 的，同时也是各大 **Coding Agent**（Claude Code 用 `claude.md`）用来理解代码库的初始化文档。
+> 这篇文档原来叫 `AGENTS.md`，文件名玩了个“双重身份”的小巧思：既表明内容关于 Agent，又蹭了各大 **Coding Agent**（Claude Code 用 `CLAUDE.md`，OpenCode、Codex 用 `AGENTS.md`）用来理解代码库的初始化文档。但后来发现这会造成麻烦——`AGENTS.md` 是 Agent 进入目录时会自动加载的规则文件，和普通笔记撞名后，Agent 可能把这篇正文误当成指令带上。所以现在改名为 `year_of_agents.md`。
 
 2025 年被广泛认为是 [**Agent 元年**](https://simonwillison.net/2025/Dec/31/the-year-in-llms/)。但在豆包、Gemini 这些应用已经做得很好用的今天（Gemini 网页版虽然看起来像 Chatbot，底层早已是 Agent 内核），我们为什么还需要关心 Agent 到底是什么？
 
