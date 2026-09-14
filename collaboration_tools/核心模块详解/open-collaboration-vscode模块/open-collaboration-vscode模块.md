@@ -1,4 +1,4 @@
-# open-collaboration-vscode 模块（VS Code 端主线）
+# open-collaboration-vscode 模块
 
 如果你们团队真正用这个项目来做“VS Code 上的实时协同编程”，那么你每天碰到的绝大多数问题都会落在 `open-collaboration-vscode`：
 

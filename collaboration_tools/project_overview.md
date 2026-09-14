@@ -1,4 +1,4 @@
-# 项目概览（从一次协作会话开始）
+# Collaboration Tools 项目概览（从一次协作会话开始）
 
 第一次打开 `collaboration-tools`，最容易让人迷糊的往往不是某个类怎么写，而是脑子里缺一条“端到端主线”：你在 VS Code 里点一下 Share/Join，背后同时牵动了房间创建、鉴权、文件系统代理、Yjs 文本同步、awareness（光标/选区/在线状态）同步。
 

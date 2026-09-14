@@ -1,4 +1,4 @@
-# OAuth 集成认证（GitHub/Google：第三方登录在这里接入）
+# OAuth 集成认证
 
 你们在日常开发里大概率不会第一时间用 OAuth（内部环境 simple login 更省事），但如果要对外部署、或要把用户体系接到 GitHub/Google，那么这条链路就必须清楚：
 

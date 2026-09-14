@@ -2,7 +2,7 @@
 
 ## 1.1 环境搭建与项目创建
 
-在开始施展魔法之前，我们需要先准备好“魔杖”和“工作台”。
+开始之前，先把需要的工具准备好。
 
 #### **必备条件**
 
@@ -28,7 +28,7 @@ npm install -g yo generator-code
 yo code
 ```
 
-接下来，脚手架会像一个向导一样，问你一系列问题来配置你的初始项目。对于初学者，建议按以下方式回答：
+接下来，脚手架会依次询问一系列问题来配置你的初始项目。对于初学者，建议按以下方式回答：
 
 ```
 ? What type of extension do you want to create? New Extension (TypeScript)
@@ -60,12 +60,12 @@ code .
 ├── .vscode
 │   └── launch.json     # 运行和调试的配置文件
 ├── src
-│   └── extension.ts    # 插件的“心脏”：源代码入口
-├── package.json        # 插件的“身份证”：清单文件
+│   └── extension.ts    # 插件入口：源代码
+├── package.json        # 插件清单
 └── ...
 ```
 
-#### **`package.json`：插件的“身份证” (Manifest)**
+#### **`package.json`：插件清单 (Manifest)**
 
 这个文件向 VS Code 描述了你的插件的一切。它不是普通的 `package.json`，里面包含了很多 VS Code 专用的字段。
 
@@ -75,7 +75,7 @@ code .
   * `activationEvents`: **(核心概念)** 定义了你的插件**在什么时候被激活**。为了性能，VS Code 不会一启动就加载所有插件。这里的设置 `onCommand:helloworld.helloWorld` 意味着：只有当用户第一次尝试运行名为 `helloworld.helloWorld` 的命令时，我们的插件才会被激活加载。
   * `contributes`: **(核心概念)** 这是你为 VS Code “贡献”新功能的地方。比如，`"commands"` 数组就定义了一个新的命令，它的 `title` 是显示给用户看的，`command` 则是这个命令的唯一 ID。
 
-#### **`src/extension.ts`：插件的“心脏” (Entry Point)**
+#### **`src/extension.ts`：插件入口 (Entry Point)**
 
 这个文件是你的插件代码的起点，它导出了两个生命周期函数：
 

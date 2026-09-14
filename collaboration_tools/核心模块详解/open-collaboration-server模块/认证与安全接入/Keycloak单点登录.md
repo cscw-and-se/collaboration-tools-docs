@@ -1,4 +1,4 @@
-# Keycloak 单点登录（企业环境的 OAuth2/OIDC 接入）
+# Keycloak 单点登录
 
 Keycloak 在这个项目里本质上也是一个 `OAuthEndpoint` 的实现：
 

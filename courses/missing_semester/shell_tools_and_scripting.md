@@ -1,60 +1,93 @@
 # 第二讲：Shell 工具与脚本 (Shell Tools and Scripting)
 
+> MIT《Missing Semester》学习笔记，整理于 2026-09。以下为学习整理，非官方讲义。
+
 ## 课程链接
-- **英文官网**：[missing.csail.mit.edu/2020/shell-tools/](https://missing.csail.mit.edu/2020/shell-tools/)
-- **中文译版**：[missing-semester-cn.github.io/2020/shell-tools/](https://missing-semester-cn.github.io/2020/shell-tools/)
 
----
+- 英文讲义：https://missing.csail.mit.edu/2020/shell-tools/
+- 中文译版：https://missing-semester-cn.github.io/2020/shell-tools/
 
-## 核心笔记润色版
+## 1. Shell 是一门编程语言
 
-### 1. 核心理念：Shell 是一门编程语言
-这节课的核心在于将 Shell 从一个“交互式命令窗口”转变为一门**完整的编程语言**。
-*   **不仅仅是命令**：Shell 支持变量、条件分支、循环和函数。
-*   **唯一的学习方法**：资料强调，掌握脚本编写的唯一途径就是**亲手编写脚本**。通过自动化，你可以将原本需要手动执行的 15 条命令缩减为一个脚本，避免遗忘参数或步骤。
+Shell 不只用来敲单条命令，它支持变量、条件、循环和函数。把这些用起来，就能把重复操作写成脚本。
 
-### 2. 开发者必备的 Shell 脚本技巧
+## 2. 脚本基础
 
-#### A. 自动化重复任务 (The Sha-Bang)
-脚本通常以 `#!`（Shebang）开头，告诉系统使用哪个解释器（如 `#!/bin/bash` 或 `#!/usr/bin/python`）。
-*   **开发案例**：编写一个 `cleanup` 脚本，自动清理 `/var/log` 下的过时日志文件，而不是每次手动删除。
-*   **实际价值**：在 CI/CD 或 DevOps 工作流中，这种自动化能力是构建稳定流水线的基石。
+脚本一般以 shebang 开头，告诉系统用哪个解释器：
 
-#### B. 变量与参数传递
-*   **位置参数**：脚本可以接收参数，例如 `$1` 代表第一个参数，`$@` 代表所有参数。
-*   **退出码 (Exit Status)**：每个命令执行后都会返回一个状态（0 表示成功，非 0 表示错误），脚本通过检测 `$?` 来决定是否继续执行后续危险操作（如 `rm`）。
+```bash
+#!/bin/bash
+echo "hello"
+```
 
-#### C. 查找与处理文件 (find & xargs)
-*   **精准查找**：不仅仅是按文件名找，还可以按修改时间、权限或大小查找。
-    *   **例子**：`find . -name "*.py" -mtime -1` 查找过去 24 小时内修改过的所有 Python 文件。
-*   **组合拳 (xargs)**：将查找到的文件作为下一个命令的参数。
-    *   **案例**：卸载系统中所有旧版本的 Rust nightly 构建：`rustup toolchain list | grep nightly | xargs rustup toolchain uninstall`。
+保存为 `cleanup.sh` 后，`chmod +x cleanup.sh` 即可直接执行。
 
-### 3. 三大文本处理神器：Grep, Sed, Awk
-这些工具被称为 Linux “三剑客”，能极大提升你在处理大型项目时的效率。
+变量与参数：
 
-*   **Grep (全局搜索)**：在海量代码或日志中快速定位。
-    *   **开发场景**：调试时，从数百万行系统日志中提取特定错误：`journalctl | grep sshd | grep "Disconnected from"`。
-*   **Sed (流编辑器)**：无需手动打开文件即可批量修改文本。
-    *   **开发场景**：全局重构。将代码中所有的 `kubernetes` 替换为 `k3s`：`sed 's/kubernetes/k3s/g' input.txt`。
-*   **Awk (列处理器)**：它本身是一门语言，极度擅长处理结构化数据（如 CSV、表格）。
-    *   **开发场景**：从复杂的系统进程报告中只提取特定的 PID 或统计内存总和。
+```bash
+name="world"
+echo "hello $name"
 
-### 4. 进阶环境管理：Dotfiles (配置同步)
-对于开发者，跨机器保持开发环境一致性是巨大挑战。
-*   **优雅方案**：使用 **Git 裸仓库 (Bare Repository)** 技术。
-*   **操作方式**：在 `$HOME` 创建 `.cfg` 目录作为裸仓库，通过定义 `alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'`，你可以像使用 Git 管理代码一样管理你的 `.bashrc`、`.vimrc` 等配置文件。
-*   **实际价值**：新入职或换电脑时，只需一条 `curl` 命令即可瞬间恢复你习惯的所有快捷键和主题配置。
+echo "$1"    # 第一个参数
+echo "$@"    # 所有参数
+```
 
----
+退出码用来判断上一条命令是否成功，`0` 表示成功，非 `0` 表示失败：
 
-## 💡 为什么这节课对开发至关重要？
-1.  **处理规模化问题**：手动改 1 个文件很快，但手动改 1000 个文件是不可能的。掌握 `find` + `sed` 让你具备处理“无限规模”文件的能力。
-2.  **消除人为失误**：人类会疲劳、会打错字；脚本不会。将部署流程写成脚本，意味着无论执行多少次，结果都是一致的。
-3.  **DevOps 的入场券**：现在的软件工程不仅是写代码，还要负责代码的打包、测试和发布。Shell 脚本是这些领域通用的“底层语言”。
+```bash
+grep foo file.txt
+echo $?      # 查看上一条命令的退出码
+```
 
----
+条件与循环：
 
-### 🌟 总结比喻
-如果第一讲是教你如何进入“实验室”，那么这一讲则是教你**如何建造自动化实验设备**。
-与其每次都亲手操作移液管（手动敲命令），不如编写一套“自动化脚本流水线”。当你需要处理成千上万份样本（文件或日志）时，你只需按下“启动键”，然后去喝杯咖啡，计算机会比你更精准、更快速地完成所有枯燥的工作。
+```bash
+if [ -z "$1" ]; then
+    echo "usage: $0 <name>"
+fi
+
+for f in *.txt; do
+    echo "$f"
+done
+```
+
+## 3. 查找与批量处理
+
+```bash
+find . -name "*.py" -mtime -1                 # 24 小时内修改过的 py 文件
+rustup toolchain list | grep nightly | xargs rustup toolchain uninstall
+```
+
+`find` 支持按名称、时间、权限、大小等条件查找；`xargs` 把上一条命令的输出当作下一条命令的参数，从而批量执行。
+
+## 4. 文本处理三件套
+
+- `grep`：按模式筛选行。
+  ```bash
+  journalctl | grep sshd | grep "Disconnected from"
+  ```
+- `sed`：流式替换，不用打开文件就能批量修改。
+  ```bash
+  sed 's/kubernetes/k3s/g' input.txt
+  ```
+- `awk`：按列处理结构化文本（如 CSV）。
+  ```bash
+  awk -F, '{sum += $3} END {print sum}' data.csv
+  ```
+
+## 5. 用 Git 管理 dotfiles
+
+在 `$HOME` 下建一个裸仓库，就能像管理代码一样管理 `.bashrc`、`.vimrc` 等配置文件：
+
+```bash
+git init --bare $HOME/.cfg
+alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+config add .vimrc
+config commit -m "update vimrc"
+```
+
+换机器时，clone 这个仓库即可恢复配置。
+
+## 小结
+
+这一讲最实用的部分，是把重复操作固化成脚本：改一个好写，改一千个就要靠工具。

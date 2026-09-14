@@ -1,16 +1,15 @@
 - [写在前面](README.md)
 - 实时协同编程
-  - [什么是实时系统编程](rcp/what_is_rcp.md)
+  - [什么是实时协同编程](rcp/what_is_rcp.md)
   - [OT算法 vs CRDT算法](rcp/ot_vs_crdt.md)
 - 什么是AI编程
   - [为什么使用AI编程](ai_coding/why_ai_coding.md)
-  - [AI 使用实践：Agent 能做什么](ai_coding/ai_practice_and_boundaries.md)
+  - [AI 使用实践](ai_coding/ai_practice_and_boundaries.md)
   - [如何用 AI 高效编程](ai_coding/pair_programming_with_ai.md)
-  - [如何通过中转站使用 Codex 等 Agent 工具](ai_coding/using_codex.md)
+  - [通过中转站使用 Codex](ai_coding/using_codex.md)
   - [AI 中转站怎么选](ai_coding/api_relay_station_selection.md)
-  - [用AI辅助阅读源码](ai_coding/ai_for_reading_code.md)
-  - [GitHub Education](ai_coding/github_education.md)
-  - [2025 — Agent 元年](ai_coding/year_of_agents.md)
+  - [GitHub Education（过时）](ai_coding/github_education.md)
+  - [如何学习 Agent（选读）](ai_coding/year_of_agents.md)
 - 技术栈
   - [软件开发前置知识速通](tech_stack/software_dev_prerequisites.md)
   - [Shell](tech_stack/shell.md)
@@ -28,13 +27,13 @@
   - [编辑器与文件系统](vscode_plugin/editor_api.md)
   - [视图、配置与状态](vscode_plugin/sidebar_and_webview.md)
 - 一些笔记
-  - [如何正确地搜索](search.md)
-  - [常用软件开发工具推荐](recommended_tools.md)
+  - [信息搜索指南](search.md)
+  - [开发者工具推荐](recommended_tools.md)
   - [如何使用 EndNote 进行文献管理](random_notes/using_endnote.md)
-  - [如何优雅地编辑本文档](random_notes/how_to_write_this_doc.md)
+  - [如何编辑本文档](random_notes/how_to_write_this_doc.md)
   - [如何进行文献综述](random_notes/how_to_write_a_literature_review.md)
   - [我推荐的公众号](random_notes/recommended_wechat_accounts.md)
-- 项目概览
+- Collaboration Tools
   - [项目概览](collaboration_tools/project_overview.md)
   - [项目是怎么运行的](collaboration_tools/how_it_works.md)
   - [技术栈与架构](collaboration_tools/技术栈与架构.md)
@@ -83,24 +82,7 @@
 - 深入实时协同编程
   - [未来的研究方向](rcp/future_research.md)
 - 一些课程推荐（附带AI总结笔记）
-  - [CSDIY](https://csdiy.wiki/)
-  - CMU 17-803
-    - [1](courses/cmu-17-803/1.md)
-    - [2](courses/cmu-17-803/2.md)
-    - [3](courses/cmu-17-803/3.md)
-    - [4](courses/cmu-17-803/4.md)
-    - [5](courses/cmu-17-803/5.md)
-    - [6](courses/cmu-17-803/6.md)
-    - [7](courses/cmu-17-803/7.md)
-    - [8](courses/cmu-17-803/8.md)
-    - [9](courses/cmu-17-803/9.md)
-    - [10](courses/cmu-17-803/10.md)
-    - [11](courses/cmu-17-803/11.md)
-    - [12](courses/cmu-17-803/12.md)
-    - [13](courses/cmu-17-803/13.md)
-    - [14](courses/cmu-17-803/14.md)
-    - [15](courses/cmu-17-803/15.md)
-    - [16](courses/cmu-17-803/16.md)
+  - [CSDIY（强烈推荐）](https://csdiy.wiki/)
   - Missing Semester
     - [Course Overview + Introduction to the Shell](courses/missing_semester/course_overview_and_introduction_to_the_shell.md)
     - [Shell Tools and Scripting](courses/missing_semester/shell_tools_and_scripting.md)

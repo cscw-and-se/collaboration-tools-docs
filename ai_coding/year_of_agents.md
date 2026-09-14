@@ -1,4 +1,4 @@
-# 2025 — The Year of Agents
+# 如何学习 Agent（选读）
 
 > 这篇文档原来叫 `AGENTS.md`，文件名玩了个“双重身份”的小巧思：既表明内容关于 Agent，又蹭了各大 **Coding Agent**（Claude Code 用 `CLAUDE.md`，OpenCode、Codex 用 `AGENTS.md`）用来理解代码库的初始化文档。但后来发现这会造成麻烦——`AGENTS.md` 是 Agent 进入目录时会自动加载的规则文件，和普通笔记撞名后，Agent 可能把这篇正文误当成指令带上。所以现在改名为 `year_of_agents.md`。
 
@@ -20,7 +20,7 @@ Java 的那套工程方法论当然没有过时——扎实的基础本身就是
 
 站在 2026 年 3 月，趋势已经比一年前清晰多了。
 
-## 称不上roadmap的roadmap
+## 学习路线
 
 > 这不是"必须按顺序走"的路线图，更像是一组台阶 —— 你可以跳着踩，也可以找到适合自己节奏的入口。
 

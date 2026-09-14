@@ -10,7 +10,7 @@
 
 ![下载 Codex 应用](assets/codex-tutorial/01-download-app.png)
 
-## 第二步：两条路线，官方账号还是中转站
+## 第二步：选择路线
 
 先看手里有没有 GPT Plus 或 Pro。
 

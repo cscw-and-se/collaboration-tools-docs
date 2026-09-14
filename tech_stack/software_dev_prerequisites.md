@@ -1,4 +1,4 @@
-# 软件开发前置知识速通（本科生/研究生）
+# 软件开发前置知识速通
 
 很多同学第一次进组做“真实项目”，卡住的往往不是某个语法点，而是：
 
@@ -10,7 +10,7 @@
 
 下面我用“你刚开始参与 `collaboration-tools` 项目”这个场景，把最需要补齐的前置知识按实际开发顺序串起来。
 
-## 1) 先把环境跑稳：命令行、Node、包管理、日志
+## 1) 环境与工具
 
 你至少要做到两件事：
 
@@ -24,7 +24,7 @@
 
 在本项目里，对应的第一条实践路径是：先按 [项目是怎么运行的](/collaboration_tools/how_it_works.md) 跑通一次“server + 两个 VS Code”。你能跑通，后面的学习都会变快。
 
-## 2) Git 团队协作：分支、冲突、评审不是可选项
+## 2) Git 团队协作
 
 真实开发里，你一定会遇到：
 
@@ -39,7 +39,7 @@
 
 对应资料： [Git 基础](/git/git_basic.md)、[Git 团队协作流程](/git/git_team_workflow.md)。
 
-## 3) TypeScript 与 Node：看得懂异步与类型，才能看得懂协作链路
+## 3) TypeScript 与 Node
 
 协作系统的代码天然会大量出现：
 
@@ -53,7 +53,7 @@
 
 对应资料： [TypeScript](/tech_stack/typescript.md)。
 
-## 4) VS Code 扩展基础：activation、commands、FileSystemProvider 是三大件
+## 4) VS Code 扩展基础
 
 你们团队最关心的是 VS Code 端实时协作，所以你需要把 VS Code 扩展的三个关键机制补起来：
 
@@ -68,7 +68,7 @@
 - [项目概览](/collaboration_tools/project_overview.md)
 - [open-collaboration-vscode 模块](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/open-collaboration-vscode模块.md)
 
-## 5) 实时协作基础：分清“文本同步”和“协作态同步”
+## 5) 实时协作基础
 
 协作里最常见的误解是把所有同步问题都当成“文本同步坏了”。实际上它至少有两条线：
 
@@ -81,7 +81,7 @@
 - [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)
 - [open-collaboration-yjs 模块](/collaboration_tools/核心模块详解/open-collaboration-yjs模块.md)
 
-## 6) 网络与服务端基础：WebSocket/Socket.IO、JWT、超时轮询
+## 6) 网络与服务端基础
 
 你不需要一开始就能写 server，但你要能看懂：
 
@@ -95,7 +95,7 @@
 - [房间生命周期管理](/collaboration_tools/核心模块详解/open-collaboration-server模块/房间与用户管理机制/房间生命周期管理.md)
 - [认证机制](/collaboration_tools/安全与认证/认证机制.md)
 
-## 7) 调试与验证：最小复现、日志对齐、改动后回归
+## 7) 调试与验证
 
 最后这一条是所有“能独立做事”的分水岭：你遇到 bug 时不要靠玄学重装重启，而是能做到：
 
@@ -109,7 +109,7 @@
 - 再用 [项目概览](/collaboration_tools/project_overview.md) 里的入口定位到具体文件。
 - 同步问题就看 [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md) 把现象归类。
 
-## Summary
+## 小结
 
 - 最重要的是先跑通一次端到端： [项目是怎么运行的](/collaboration_tools/how_it_works.md)。
 - 学习顺序建议按“能做事 -> 能排障 -> 能二开”：环境与工具 -> Git/TS -> VS Code 扩展 -> 协作同步 -> server。
