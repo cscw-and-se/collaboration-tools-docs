@@ -2,7 +2,7 @@
 
 在第一章，我们创建了一个只会“自言自语”的插件。现在，我们要让它学会与用户进行真正的“对话”。本章将教你如何注册更复杂的命令，并通过 VS Code 提供的基础 UI 元素（提示框、输入框等）来接收用户的指令和反馈。
 
-## 2.1 命令 (Command): 插件功能的入口
+## 2.1 命令 (Command)
 
 命令是用户与插件功能交互的起点。我们在 `package.json` 的 `contributes.commands` 数组中声明一个命令，然后在 `extension.ts` 中用 `vscode.commands.registerCommand` 来为这个声明“注入灵魂”（即实现它的具体功能）。
 
@@ -29,7 +29,7 @@
 
 现在，我们的插件就有了两个命令：“Hello World” 和 “Ask Name”。接下来我们去实现第二个。
 
-## 2.2 基础 UI 元素: 与用户对话的工具箱
+## 2.2 基础 UI 元素
 
 VS Code 在 `vscode.window` 这个 API 命名空间下，为我们提供了丰富的 UI 组件。
 
@@ -95,7 +95,7 @@ context.subscriptions.push(askNameDisposable);
 
 > **注意**：我们使用了 `async` 和 `await`。因为 `showInputBox` 和 `showQuickPick` 都是**异步**操作，它们会等待用户的输入，而不会阻塞整个 VS Code 编辑器。`async/await` 能让我们用像写同步代码一样的方式来处理异步流程。
 
-## 2.3 状态栏 (Status Bar): 持久化的信息窗口
+## 2.3 状态栏 (Status Bar)
 
 状态栏是位于 VS Code 窗口最底部的一条区域，非常适合用来显示一些持久化的、不打扰用户的状态信息。
 

@@ -1,4 +1,4 @@
-# open-collaboration-protocol 模块（从“点一下 Share/Join”讲起）
+# open-collaboration-protocol 模块
 
 很多同学第一次读协作系统，会下意识从“server 有哪些类、vscode 有哪些 service”开始。然后越读越乱：房间、peer、token、加密、压缩、广播……每个词都认识，但连不成一条可调试的链路。
 

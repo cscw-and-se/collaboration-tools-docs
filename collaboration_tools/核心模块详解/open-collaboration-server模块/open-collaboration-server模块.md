@@ -1,4 +1,4 @@
-# open-collaboration-server 模块（房间、Peer、消息中继、认证）
+# open-collaboration-server 模块
 
 如果你把整个协作系统想成一个“多人同时在线的状态机”，那么 `open-collaboration-server` 就是状态机的裁判：
 

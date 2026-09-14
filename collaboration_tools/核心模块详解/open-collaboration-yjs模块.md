@@ -1,4 +1,4 @@
-# open-collaboration-yjs 模块（同步的“发动机”和“减震器”）
+# open-collaboration-yjs 模块
 
 在这套协作系统里，Yjs 是“发动机”，`open-collaboration-yjs` 是“发动机与传动轴之间的连接件”：它把 Yjs 的 update/awareness 变成协议消息发出去，也把协议消息应用回 Yjs。
 

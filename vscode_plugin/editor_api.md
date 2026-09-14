@@ -1,8 +1,8 @@
 # 第三章：深入工作区 - 编辑器与文件系统
 
-到目前为止，我们的插件还只能“飘”在 VS Code 的 UI 层。现在，我们要让它“沉”下去，深入到最核心的区域：代码编辑器本身。本章将教你如何读取和修改用户正在编辑的文件内容，以及如何精确定位到文件中的任意位置。
+前面的章节里，我们的插件主要在 VS Code 的 UI 层工作。本章开始接触更核心的部分：代码编辑器本身。下面讲如何读取和修改用户正在编辑的文件内容，以及如何定位到文件中的任意位置。
 
-## 3.1 编辑器 API: 与代码对话的桥梁
+## 3.1 编辑器 API
 
 VS Code 提供了一套丰富的 API 来与编辑器交互。我们的主要入口点是 `vscode.window.activeTextEditor`。
 
@@ -50,7 +50,7 @@ context.subscriptions.push(countSelectionDisposable);
 
 现在按下 `F5` 运行插件。打开任意一个文件，选中一段文本，然后通过命令面板 (`Ctrl/Cmd+Shift+P`) 运行 "Count Selected Characters" 命令，看看会发生什么。
 
-## 3.2 位置与范围 (Position & Range): 代码世界的 GPS
+## 3.2 位置与范围 (Position & Range)
 
 刚刚的代码中出现了 `editor.selection`，它的类型是 `vscode.Selection`（`Selection` 是 `Range` 的一种特殊形式）。要理解它，我们必须先了解 VS Code 是如何给代码定位的。
 

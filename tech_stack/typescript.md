@@ -1,10 +1,10 @@
-# TypeScript: 为 JavaScript 注入类型安全
+# TypeScript
 
 在我们的项目中，无论是前端界面还是 VS Code 插件本身，主要使用的编程语言都是 TypeScript (简称 TS)。要理解 TS，我们必须先从它的基础——JavaScript (简称 JS)——开始。
 
 可以这样理解：如果说 JavaScript 是一座已经建好的、可以自由发挥的房子，那么 TypeScript 就是在盖房子之前，为这座房子精心设计的、标明了每个房间用途和尺寸的设计蓝图。
 
-## 1\. JavaScript: Web 世界的通用语
+## 1\. JavaScript
 
 JavaScript 是一门脚本语言，是唯一一门能直接在浏览器中运行的编程语言，这使得它成为了构建所有现代网页和网络应用的基石。
 
@@ -17,7 +17,7 @@ myVariable = "Hello";    // 现在它变成了一个字符串，完全没问题
 
 这种灵活性让 JS 非常容易上手，但也为大型、复杂的项目埋下了隐患。如果你想系统学习 JS 的基础，可以直接向任何大模型提问：“请给我讲解一下 JavaScript 的基础知识，比如变量、数据类型、循环和函数”。
 
-## 2\. 踏入现代 JavaScript：那些你必须知道的“高级”语法
+## 2\. 现代 JavaScript 常用语法
 
 随着 JS 的发展，它引入了许多强大的新特性，让异步编程和数据处理变得更加优雅。以下是几个核心概念：
 
@@ -77,7 +77,7 @@ const evens = numbers.filter(num => num % 2 === 0); // -> [2, 4]
 const sum = numbers.reduce((accumulator, current) => accumulator + current, 0); // -> 15
 ```
 
-## 3\. 主角登场：TypeScript
+## 3\. TypeScript
 
 TypeScript 是由微软开发的一个开源项目，它是 JavaScript 的一个超集 (Superset)。这意味着：
 
