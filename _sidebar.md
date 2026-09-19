@@ -33,6 +33,10 @@
   - [如何编辑本文档](random_notes/how_to_write_this_doc.md)
   - [如何进行文献综述](random_notes/how_to_write_a_literature_review.md)
   - [我推荐的公众号](random_notes/recommended_wechat_accounts.md)
+- SimpleRCPv2
+  - [项目概览](simplerpc_v2/overview.md)
+  - [启动与运行](simplerpc_v2/getting_started.md)
+  - [架构与二次开发](simplerpc_v2/architecture_and_secondary_dev.md)
 - Collaboration Tools
   - [项目概览](collaboration_tools/project_overview.md)
   - [项目是怎么运行的](collaboration_tools/how_it_works.md)
