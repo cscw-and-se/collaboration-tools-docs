@@ -19,7 +19,7 @@
 
 ```bash
 npm test -- --run test/manual-collaboration-launcher.test.ts
-npm run build --workspace=packages/open-collaboration-vscode
+npm run build
 ```
 
 使用 `demos/greylock-edit-impact` 执行真实双窗口验收后，Host 自动创建房间，Guest 自动加入，并挂载以下协作工作区：

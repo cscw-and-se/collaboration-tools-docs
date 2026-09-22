@@ -35,13 +35,7 @@ npm run build
 在 `collaboration-tools` 项目根目录执行：
 
 ```bash
-nvm use 22
-
-set -a
-source .env
-set +a
-
-npm run build --workspace=packages/open-collaboration-vscode
+npm run build
 
 npm run oct:collab:open -- --workspace "/absolute/path/to/project"
 ```
@@ -56,7 +50,7 @@ npm run oct:collab:open -- --workspace "/absolute/path/to/project"
 
 - 找不到 VS Code 可执行文件时，设置 `OCT_VSCODE_EXECUTABLE_PATH` 指向实际的 VS Code 可执行文件。
 - Guest 没有显示 `oct:` 工作区时，先确认终端已经输出 ready 信息，再检查 Host 是否完成建房和连接。
-- 修改启动器代码后，需要重新执行 `npm run build --workspace=packages/open-collaboration-vscode`。
+- 修改启动器代码后，需要重新执行 `npm run build`。
 
 这个命令只适合 macOS 本地双窗口调试。窗口自动排列需要关闭台前调度并授予辅助功能权限；窗口排列失败不会影响协作连接。
 

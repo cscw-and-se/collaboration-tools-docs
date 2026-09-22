@@ -68,13 +68,7 @@
 在目标项目根目录执行：
 
 ```bash
-nvm use 22
-
-set -a
-source .env
-set +a
-
-npm run build --workspace=packages/open-collaboration-vscode
+npm run build
 
 npm run oct:collab:open -- --workspace "/Users/baokker/Work/Master/CSCW/智能语义冲突预防-update/collaboration-tools/demos/greylock-edit-impact"
 ```
