@@ -28,7 +28,39 @@ npm run build
 
 如果编译失败用 `npm ci` 试试。
 
-## 2. 启动后端服务（open-collaboration-server）
+## 2. 用命令自动启动 Host 和 Guest
+
+如果你需要快速进行本地协作调试，可以让启动器自动完成服务端启动、Host 建房和 Guest 加入。这个流程会创建两个独立的 VS Code Extension Host 窗口，并把它们放入同一个协作会话。
+
+在 `collaboration-tools` 项目根目录执行：
+
+```bash
+nvm use 22
+
+set -a
+source .env
+set +a
+
+npm run build --workspace=packages/open-collaboration-vscode
+
+npm run oct:collab:open -- --workspace "/absolute/path/to/project"
+```
+
+`--workspace` 需要填写要共享的项目目录，可以使用绝对路径，也可以使用相对于当前终端目录的路径。路径包含空格或中文时需要使用引号。
+
+启动完成后，终端会显示 `OCT manual collaboration is ready.`。Host 窗口打开本地项目，Guest 窗口加入 `oct:` 协作工作区。Guest 的工作区使用远程文件系统代理，因此不会直接打开 Host 的本地目录。
+
+按 `Ctrl+C` 可以结束本次运行。启动器会关闭两个 Extension Host、停止临时服务端，并清理本次运行的协调文件和 VS Code profile。关闭任意一个协作窗口也会触发同样的清理流程。
+
+常见检查方式：
+
+- 找不到 VS Code 可执行文件时，设置 `OCT_VSCODE_EXECUTABLE_PATH` 指向实际的 VS Code 可执行文件。
+- Guest 没有显示 `oct:` 工作区时，先确认终端已经输出 ready 信息，再检查 Host 是否完成建房和连接。
+- 修改启动器代码后，需要重新执行 `npm run build --workspace=packages/open-collaboration-vscode`。
+
+这个命令只适合 macOS 本地双窗口调试。窗口自动排列需要关闭台前调度并授予辅助功能权限；窗口排列失败不会影响协作连接。
+
+## 3. 启动后端服务（open-collaboration-server）
 
 在 `collaboration-tools` 项目根目录执行：
 
@@ -42,11 +74,11 @@ OCT_ACTIVATE_SIMPLE_LOGIN=true npm run start:dev
 
 如果你后面遇到“怎么都连不上”，先别怀疑人生，第一步就是确认这个端口确实在监听。
 
-## 3. 启动 VS Code 扩展（open-collaboration-vscode）
+## 4. 启动 VS Code 扩展（open-collaboration-vscode）
 
 协作至少需要两个客户端：一个 Host（共享者），一个 Guest（加入者）。
 
-### 3.1 先确认 serverUrl 配置
+### 4.1 先确认 serverUrl 配置
 
 扩展会读 VS Code settings 里的 `oct.serverUrl`（默认值在扩展的 `package.json` 里）。
 
@@ -55,7 +87,7 @@ OCT_ACTIVATE_SIMPLE_LOGIN=true npm run start:dev
 - 位置：`collaboration-tools/packages/open-collaboration-vscode/package.json`
 - 字段：`oct.serverUrl`
 
-### 3.2 启动 Host（调试模式）
+### 4.2 启动 Host（调试模式）
 
 1. 用 VS Code 打开 `collaboration-tools/packages/open-collaboration-vscode`
 2. 打开 `src/extension.ts`
@@ -63,7 +95,7 @@ OCT_ACTIVATE_SIMPLE_LOGIN=true npm run start:dev
 
 这会打开一个新的 Extension Development Host 窗口。这个窗口就是 Host 客户端。
 
-### 3.3 启动 Guest（脚本方式）
+### 4.3 启动 Guest（脚本方式）
 
 项目提供了一个脚本帮你启动第二个 VS Code 实例：
 
@@ -74,15 +106,15 @@ chmod +x collaboration-tools/packages/open-collaboration-vscode/launch-guest.sh
 
 它会创建一套独立的临时用户数据目录，确保两个 VS Code 实例互不干扰。
 
-## 4. 创建房间与加入房间（你会看到的现象，以及它为什么这么设计）
+## 5. 创建房间与加入房间（你会看到的现象，以及它为什么这么设计）
 
-### 4.1 Host 创建房间
+### 5.1 Host 创建房间
 
 在 Host 窗口底部状态栏找到 Share（或 Open Collaboration）入口，创建新会话。
 
 你会看到它最终弹出邀请码，这就是 `roomId`。把它发给 Guest。
 
-### 4.2 Guest 加入房间
+### 5.2 Guest 加入房间
 
 Guest 使用 Join Room 输入邀请码加入。
 
@@ -95,7 +127,7 @@ Guest 使用 Join Room 输入邀请码加入。
 
 后面读 [文件系统代理与远程访问](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/文件系统代理与远程访问.md) 会讲清楚细节。
 
-## 5. “加入超时”到底在等谁？（把 UI 现象和代码对齐）
+## 6. “加入超时”到底在等谁？（把 UI 现象和代码对齐）
 
 很多人第一次跑会卡在 join timeout：Guest 一直转圈，最后超时。
 
@@ -107,7 +139,7 @@ Guest 使用 Join Room 输入邀请码加入。
 
 如果 Host 没点 Allow，Guest 就只能一直等。
 
-### 5.1 Host 侧为什么会弹出“Allow / Deny”
+### 6.1 Host 侧为什么会弹出“Allow / Deny”
 
 Host 侧处理 join request 的逻辑在 `CollaborationInstance` 里。你可以看到它直接用 VS Code 弹窗让你选：
 
@@ -135,7 +167,7 @@ connection.peer.onJoinRequest(async (_, user) => {
 
 - Host 允许加入时，会把当前 workspace 的文件夹列表返回给 Guest。
 
-### 5.2 Guest 加入后为什么会“替换工作区文件夹”
+### 6.2 Guest 加入后为什么会“替换工作区文件夹”
 
 Guest 拿到 server 返回的 workspace 信息后，会把它映射成 `oct://` 形式的 workspace folders。
 
@@ -161,7 +193,7 @@ if (uri) {
 
 你可以把它理解为：Guest 不是“打开你电脑上的目录”，而是“打开一个由扩展提供的远程工作区”。
 
-### 5.3 server 端 join 请求的等待与超时
+### 6.3 server 端 join 请求的等待与超时
 
 server 端 `RoomManager.requestJoin()` 做了两件事：
 
@@ -188,7 +220,7 @@ const responsePromise = this.messageRelay.sendRequest(room.host, requestMessage,
 
 - Host 端有没有弹窗？有没有点 Allow？
 
-## 6. 常见问题：遇到 X 先看 Y
+## 7. 常见问题：遇到 X 先看 Y
 
 - **Guest 加入后工作区是空的**：先确认 Host 端当前 workspace folder 是否为空；再看 Guest 的 folder 映射逻辑（上面的 `newFolders` 段）。
 - **能看到文件但编辑不同步**：先看 [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)，确认文本同步链路；再回到 VS Code 端的 `collaboration-instance.ts` 看文档更新节流逻辑。
