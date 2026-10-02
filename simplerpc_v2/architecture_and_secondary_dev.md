@@ -6,7 +6,7 @@
 
 ## 一句话架构
 
-**服务端项目目录是唯一数据源。** 浏览器里的 Yjs 文档、共享终端的 shell、Agent 的读写，最终都落在这个目录；磁盘上的变化也会被反向同步回 Yjs 文档。
+**服务端工作区是唯一代码来源。** 浏览器里的 Yjs 文档、共享终端的 shell、Agent 的读写，最终都写入这个工作区；文件变化也会同步回 Yjs 文档。
 
 这带来三个直接结果：
 
@@ -25,16 +25,17 @@
    ▼
 服务端 (Express + ws)
    ├─ ProjectRegistry      项目登记与导入
+   ├─ MemberStore / permissions 轻量成员身份与统一权限入口
    ├─ ProjectRuntime       每个项目的运行时资源
    │    ├─ CollaborativeDocuments  Yjs ↔ 磁盘双向同步
-   │    ├─ SharedTerminal          node-pty，cwd 为项目目录
+   │    ├─ SharedTerminal          node-pty，cwd 为项目工作区
    │    ├─ RoomStore / EventLog / ChatStore
    │    └─ workspaceWatcher       监听外部文件变化
    └─ AgentRunManager     任务队列 + OpenCode Runtime
         └─ opencode serve (127.0.0.1)
              └─ DeepSeek Provider
    ▼
-.simplercp-data/projects/<id>/workspace   ← 唯一代码来源
+.simplercp-data/workspaces/<id>   ← 唯一代码来源
 ```
 
 ## 数据是怎么流的
@@ -64,11 +65,11 @@ document.transact(() => {
 }, FILESYSTEM_ORIGIN);
 ```
 
-这样既能把外部变化同步给所有成员，又不会覆盖较新的协作内容。
+这样可以把外部变化同步给所有成员，并在检测到并发修改时记录提示。
 
 ### 3. 共享终端
 
-每个项目一个 `node-pty` 实例，工作目录就是项目目录，所有成员的输入输出走同一个 `/terminal` 通道，并共享一段 scrollback。成员端只是“连到同一个 shell 的不同窗口”。
+每个项目一个 `node-pty` 实例，工作目录就是 `workspaces/<id>`，所有成员的输入输出走同一个 `/terminal` 通道，并共享一段 scrollback。终端连接从 query 中读取 `memberId`，服务端校验成员记录后绑定连接，并给终端输入 Activity 记录填写成员归属。成员端只是“连到同一个 shell 的不同窗口”。
 
 ### 4. Agent
 
@@ -76,7 +77,8 @@ Agent 由服务端启动 OpenCode 子进程，只监听 `127.0.0.1`：
 
 - `openCodeProcess.ts` 用 `opencode serve --hostname=127.0.0.1 --port=<port>` 启动，通过 `OPENCODE_CONFIG_CONTENT` 注入 DeepSeek Provider 配置。
 - 权限上默认放开 `edit`、`bash`、`webfetch`，禁止 `external_directory`，把 Agent 限制在项目目录内。
-- `agentRunManager.ts` 负责每个项目的任务队列、session 复用、run 前后的工作区快照对比，以及 trace 落盘。
+- `agentRunManager.ts` 负责每个项目的任务队列、session 复用、run 前后的工作区快照对比，以及 trace 文件保存。
+- OpenCode 进程使用经过过滤的环境变量；终端不会继承模型 Key。OpenCode 的 bash 工具可能读取到模型 Key，这是当前已知限制。
 - 浏览器读不到 API Key，也不能直接访问 OpenCode 端口。
 
 ## 代码目录与入口
@@ -87,6 +89,7 @@ Agent 由服务端启动 OpenCode 子进程，只监听 `127.0.0.1`：
 | `apps/server/src/agent` | Agent 设置、OpenCode runtime、队列、trace | `agentRunManager.ts`、`openCodeRuntime.ts`、`openCodeProcess.ts` |
 | `apps/client/src` | React 浏览器客户端 | `App.tsx`、`api.ts`、`socket.ts` |
 | `apps/client/src/components` | 首页、工作区、面板等界面 | `WorkspaceExplorer.tsx`、`EditorArea.tsx`、`AgentPanel.tsx`、`SharedTerminal.tsx` |
+| `apps/server/src/auth` | 成员记录、请求身份解析和统一权限入口 | `identity.ts`、`permissions.ts` |
 | `packages/shared/src` | 前后端共享 TypeScript 类型 | `index.ts` |
 | `demo/workspace` | 首次启动导入的 Demo 项目 | `src/projectStatus.js` |
 | `tests` | 服务端测试与 Playwright E2E | `e2e/`、`fixtures/` |
@@ -98,19 +101,20 @@ Agent 由服务端启动 OpenCode 子进程，只监听 `127.0.0.1`：
 - **改文件持久化策略**：看 `collaborativeDocuments.ts` 的 `schedulePersist` / `persistDocument` / `reloadPath`。
 - **加 Agent 能力或换模型供应商**：`agentRuntime.ts` 定义了运行时应实现的接口，`openCodeRuntime.ts` 是当前实现；任务编排在 `agentRunManager.ts`。
 - **改界面**：从 `apps/client/src/App.tsx` 的工作区布局进入，具体面板都在 `components/` 下。
+- **改成员身份**：`apps/server/src/auth/identity.ts` 负责 `members.json`、HTTP 请求头 `X-SimpleRCP-Member` 和成员恢复；`realtime.ts` 从 WebSocket query 的 `memberId` 解析身份。`permissions.ts` 保留 `can()` 入口，当前所有成员都允许执行已注册操作。
 
-一个建议是：新增功能尽量复用“项目目录即数据源”这个约定，不要在客户端或 Agent 侧另建副本，否则会重新引入合并问题。
+新增功能应复用“工作区即代码来源”这个约定，客户端和 Agent 共享 `workspaces/<id>`，数据记录写入项目元数据目录。
 
 ## 为什么说它更容易二次开发
 
 对比 Collaboration Tools，SimpleRCPv2 少了几层通用抽象：
 
 - 没有远程文件系统代理，文件读写就是服务端本地文件读写。
-- 没有 JWT、邀请码和 Host 审批，成员加入就是一次 HTTP 调用。
+- 成员加入就是一次 HTTP 调用，服务端生成并保存 `memberId`，客户端按项目恢复这个身份。
 - 前后端类型集中在一个 `packages/shared` 包，改协议时改动点集中。
-- 终端和 Agent 都是“在项目目录里起进程”，接入新工具不需要改协作层。
+- 终端和 Agent 都是在项目工作区里启动进程，接入新工具不需要改协作层。
 
-对应地，它也**主动放弃了一些健壮性**：没有账号体系、没有命令隔离、没有三方合并、同一项目 Agent 串行执行。这些是当前基线有意的边界，不是遗漏。
+对应地，它也保留了明确的能力边界：没有账号体系、没有命令隔离、没有三方合并、同一项目 Agent 串行执行。成员身份用于归属记录，不提供身份保护。
 
 ## 当前已知的限制
 
@@ -120,7 +124,7 @@ Agent 由服务端启动 OpenCode 子进程，只监听 `127.0.0.1`：
 - 外部进程和成员同时写文件时，最终内容由实际完成顺序决定。
 - 同一项目同一时间只执行一个 Agent run，其他任务排队。
 - 服务中断会把 `running` / `queued` 的 run 标记为失败，不会自动重试。
-- 公网访问没有内置认证与隔离，必须自行加外部认证和网络限制。
+- 当前不做鉴权，知道 `memberId` 就可以冒充成员；终端和 Agent 可以运行 shell 命令并访问服务端用户可以读取的文件，只适合可信内部环境。
 
 完整的现象、影响和完整处理方向见项目内 `docs/product/known-issues.md`，改进方向见 `docs/product/improvement-roadmap.md`。
 
@@ -137,5 +141,5 @@ Agent 由服务端启动 OpenCode 子进程，只监听 `127.0.0.1`：
 
 - [SimpleRCPv2 项目概览](/simplerpc_v2/overview.md)
 - [SimpleRCPv2 启动与运行](/simplerpc_v2/getting_started.md)
-- [Collaboration Tools 技术栈与架构](/collaboration_tools/技术栈与架构.md)
+- [Collaboration Tools 技术与架构](/collaboration_tools/技术栈与架构.md)
 - [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)
