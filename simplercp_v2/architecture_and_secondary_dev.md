@@ -1,48 +1,49 @@
 # SimpleRCPv2 架构与二次开发
 
-这页回答两个问题：SimpleRCPv2 内部是怎么把“浏览器、终端、Agent、磁盘”这四方串起来的，以及想加东西时应该改哪里。
+这页讲 SimpleRCPv2 内部怎么把浏览器、共享终端、Agent 和磁盘串起来，以及想加功能时该改哪里。
 
-如果你还没跑起来，先看 [启动与运行](/simplerpc_v2/getting_started.md)。
+还没跑起来的话，先看 [启动与运行](/simplercp_v2/getting_started.md)。
 
-## 一句话架构
+## 核心约定：工作区是唯一的代码来源
 
-**服务端工作区是唯一代码来源。** 浏览器里的 Yjs 文档、共享终端的 shell、Agent 的读写，最终都写入这个工作区；文件变化也会同步回 Yjs 文档。
+每个项目在服务端有一个工作区目录 `workspaces/<projectId>/`。浏览器里的编辑、共享终端里的命令、Agent 的读写，最后都落到这个目录；有人在终端或 Agent 里直接改了文件，变化也会同步回浏览器。
 
-这带来三个直接结果：
+这样做有三个好处：
 
-- 不需要像 [Collaboration Tools](/collaboration_tools/project_overview.md) 那样实现一套远程文件系统代理（Guest 侧没有 `oct://` 这类映射）。
-- 终端和 Agent 不用改造，只要在项目目录里启动即可，可以复用它们原生的能力。
-- 所有功能共享同一份代码，不存在“人一个副本、Agent 一个副本”的合并问题。
+- 不需要像 [Collaboration Tools](/collaboration_tools/project_overview.md) 那样实现远程文件系统代理，文件读写就是服务端的本地读写。
+- 终端和 Agent 不用改造，在工作区目录里启动进程就能用上它们原本的能力。
+- 人和 Agent 改的是同一份代码，不存在各有一个副本、事后再合并的问题。
 
 ## 整体结构
 
 ```text
 浏览器 (React + Monaco + xterm.js)
-   │  HTTP /api        ── 项目、文件、聊天、Agent 接口
-   │  WS   /ws         ── 在线状态、Activity、Agent 事件广播
-   │  WS   /yjs/...    ── Yjs 文本文档同步
-   │  WS   /terminal   ── 共享终端输入输出
+   │  HTTP /api        项目、文件、成员、聊天、Agent 接口
+   │  WS   /ws         在线状态、Activity、Agent 事件广播
+   │  WS   /yjs/...    Yjs 文本文档同步
+   │  WS   /terminal   共享终端输入输出
    ▼
 服务端 (Express + ws)
-   ├─ ProjectRegistry      项目登记与导入
-   ├─ MemberStore / permissions 轻量成员身份与统一权限入口
-   ├─ ProjectRuntime       每个项目的运行时资源
-   │    ├─ CollaborativeDocuments  Yjs ↔ 磁盘双向同步
-   │    ├─ SharedTerminal          node-pty，cwd 为项目工作区
+   ├─ routes/*.ts            HTTP 接口，按领域分文件
+   ├─ ProjectRegistry        项目登记与导入
+   ├─ auth/                  成员记录、身份解析、权限入口
+   ├─ ProjectRuntime         每个项目的运行时资源
+   │    ├─ CollaborativeDocuments   Yjs 与磁盘双向同步
+   │    ├─ SharedTerminal           node-pty，cwd 为项目工作区
    │    ├─ RoomStore / EventLog / ChatStore
-   │    └─ workspaceWatcher       监听外部文件变化
-   └─ AgentRunManager     任务队列 + OpenCode Runtime
+   │    └─ workspaceWatcher         监听外部文件变化
+   └─ AgentRunManager        每个项目一个任务队列
         └─ opencode serve (127.0.0.1)
              └─ DeepSeek Provider
    ▼
-.simplercp-data/workspaces/<id>   ← 唯一代码来源
+.simplercp-data/workspaces/<projectId>/
 ```
 
-## 数据是怎么流的
+## 数据怎么流动
 
-### 1. 浏览器编辑 → 磁盘
+### 浏览器编辑写回磁盘
 
-Monaco 绑定 Yjs 文档，编辑通过 `/yjs` 通道同步。服务端在 `collaborativeDocuments.ts` 里监听 Yjs 更新，做 300ms 防抖后写回磁盘：
+Monaco 绑定 Yjs 文档，编辑通过 `/yjs` 通道同步给其他人。服务端在 `collaborativeDocuments.ts` 里监听 Yjs 更新，防抖 300ms 后写回磁盘：
 
 ```ts
 document.on("update", (_update, origin) => {
@@ -53,11 +54,11 @@ document.on("update", (_update, origin) => {
 });
 ```
 
-来源是 `FILESYSTEM_ORIGIN` 的更新不会再次写盘，避免“磁盘 → Yjs → 磁盘”的循环。
+来源标记为 `FILESYSTEM_ORIGIN` 的更新不会再写盘，避免磁盘和 Yjs 之间来回触发。
 
-### 2. 磁盘变化 → 浏览器
+### 磁盘变化同步到浏览器
 
-终端脚本或 Agent 直接写文件时，`workspaceWatcher` 捕获变化，`reloadPath()` 把新内容以最小 delta 的形式合并进 Yjs，并标记为文件系统来源：
+终端命令或 Agent 直接改文件时，`workspaceWatcher` 发现变化，`reloadPath()` 把新内容按最小差异合并进 Yjs，并打上文件系统来源的标记：
 
 ```ts
 document.transact(() => {
@@ -65,81 +66,110 @@ document.transact(() => {
 }, FILESYSTEM_ORIGIN);
 ```
 
-这样可以把外部变化同步给所有成员，并在检测到并发修改时记录提示。
+外部写入和浏览器里的编辑之间不做合并。Agent 任务结束时，`agentRunManager.ts` 会检查任务期间有没有别人改过同一批文件，有的话记一条 `concurrent_change` 提示。
 
-### 3. 共享终端
+### 共享终端
 
-每个项目一个 `node-pty` 实例，工作目录就是 `workspaces/<id>`，所有成员的输入输出走同一个 `/terminal` 通道，并共享一段 scrollback。终端连接从 query 中读取 `memberId`，服务端校验成员记录后绑定连接，并给终端输入 Activity 记录填写成员归属。成员端只是“连到同一个 shell 的不同窗口”。
+每个项目一个 `node-pty` 进程，工作目录是项目工作区。所有成员连到同一个 `/terminal` 通道，看到同一段输出和 scrollback，相当于同一个 shell 开了几个窗口。连接时服务端从 query 里取 `memberId`，校验成员记录后绑定到连接上，终端输入记到这个成员名下。
 
-### 4. Agent
+终端进程的环境变量按白名单传入，名字里带 `KEY`、`TOKEN`、`SECRET`、`PASSWORD`、`COOKIE` 的变量会被过滤掉，相关逻辑在 `processEnv.ts`。
 
-Agent 由服务端启动 OpenCode 子进程，只监听 `127.0.0.1`：
+### Agent
 
-- `openCodeProcess.ts` 用 `opencode serve --hostname=127.0.0.1 --port=<port>` 启动，通过 `OPENCODE_CONFIG_CONTENT` 注入 DeepSeek Provider 配置。
-- 权限上默认放开 `edit`、`bash`、`webfetch`，禁止 `external_directory`，把 Agent 限制在项目目录内。
-- `agentRunManager.ts` 负责每个项目的任务队列、session 复用、run 前后的工作区快照对比，以及 trace 文件保存。
-- OpenCode 进程使用经过过滤的环境变量；终端不会继承模型 Key。OpenCode 的 bash 工具可能读取到模型 Key，这是当前已知限制。
-- 浏览器读不到 API Key，也不能直接访问 OpenCode 端口。
+Agent 是服务端启动的 OpenCode 子进程：
 
-## 代码目录与入口
+- `openCodeProcess.ts` 用 `opencode serve --hostname=127.0.0.1 --port=<port>` 启动，通过 `OPENCODE_CONFIG_CONTENT` 注入 DeepSeek 配置。权限上允许 `edit`、`bash`、`webfetch`，禁止 `external_directory`，让 Agent 只在工作区里活动。
+- `agentRunManager.ts` 管理每个项目的任务队列和 session 复用，任务前后各拍一次工作区快照用来对比改了哪些文件，并把 trace 存成文件。
+- `openCodeRuntime.ts` 负责和 OpenCode 通信，实现 `agentRuntime.ts` 里定义的接口。
 
-| 目录 | 职责 | 关键文件 |
+OpenCode 进程也走环境变量白名单，但它必须拿到模型配置，所以 Agent 的 bash 工具有可能读到 DeepSeek Key。终端则读不到。
+
+## 数据目录
+
+默认在仓库根目录的 `.simplercp-data/`：
+
+```text
+.simplercp-data/
+├── registry.json                项目列表
+├── projects/<projectId>/        项目元数据，不放代码
+│   ├── project.json
+│   ├── members.json             成员记录
+│   ├── chat.json
+│   ├── activity.json
+│   ├── agent-sessions/<sessionId>/session.json
+│   └── agent-runs/<runId>/
+│       ├── run.json
+│       └── trace.jsonl
+├── workspaces/<projectId>/      项目代码，浏览器、终端、Agent 共用
+├── instance/                    旧版本数据迁移的标记文件
+└── agent/settings.json          全局 Agent 设置
+```
+
+元数据和代码分开放，是为了让终端和 Agent 在工作区里操作时碰不到聊天记录、成员记录和 trace。
+
+`instance/` 只在从旧版本升级时用到。旧版本把元数据放在工作区里，首次启动新版本会把数据迁移出来，迁移过程中写 `migration-<projectId>.started`、`.copied.json`、`.complete` 三个标记，中途断掉下次启动可以接着迁移。
+
+## 成员身份
+
+加入项目是一次 HTTP 调用。服务端生成 `memberId`，和显示名、Role 一起存进 `members.json`；客户端按项目把 `memberId` 存在浏览器里，刷新页面后带着它恢复成同一个成员。之后 HTTP 请求通过 `X-SimpleRCP-Member` 请求头带上 `memberId`，WebSocket 通过 query 带上。
+
+聊天、Agent 任务和 session 的归属由服务端根据这个身份填写，客户端在消息里自己写的 `memberId` 会被忽略。`permissions.ts` 里保留了 `can()` 作为统一的权限入口，目前对所有成员都返回允许，以后要加权限控制时从这里改。
+
+这套身份只用来记录谁做了什么，不做鉴权，知道别人的 `memberId` 就能冒充他。
+
+## 代码入口
+
+| 目录 | 职责 | 先看哪些文件 |
 | --- | --- | --- |
-| `apps/server/src` | Express + WebSocket 服务 | `index.ts`、`createApp.ts`、`realtime.ts` |
-| `apps/server/src/agent` | Agent 设置、OpenCode runtime、队列、trace | `agentRunManager.ts`、`openCodeRuntime.ts`、`openCodeProcess.ts` |
-| `apps/client/src` | React 浏览器客户端 | `App.tsx`、`api.ts`、`socket.ts` |
-| `apps/client/src/components` | 首页、工作区、面板等界面 | `WorkspaceExplorer.tsx`、`EditorArea.tsx`、`AgentPanel.tsx`、`SharedTerminal.tsx` |
-| `apps/server/src/auth` | 成员记录、请求身份解析和统一权限入口 | `identity.ts`、`permissions.ts` |
-| `packages/shared/src` | 前后端共享 TypeScript 类型 | `index.ts` |
+| `apps/server/src` | 服务端入口、实时通信 | [`index.ts`](https://github.com/Baokker/SimpleRCPv2/blob/main/apps/server/src/index.ts)、[`createApp.ts`](https://github.com/Baokker/SimpleRCPv2/blob/main/apps/server/src/createApp.ts)、[`realtime.ts`](https://github.com/Baokker/SimpleRCPv2/blob/main/apps/server/src/realtime.ts)、[`collaborativeDocuments.ts`](https://github.com/Baokker/SimpleRCPv2/blob/main/apps/server/src/collaborativeDocuments.ts) |
+| `apps/server/src/routes` | HTTP 接口 | `projectRoutes.ts`、`workspaceRoutes.ts`、`collaborationRoutes.ts`、`agentRoutes.ts` |
+| `apps/server/src/auth` | 成员记录、身份解析、权限入口 | `identity.ts`、`permissions.ts` |
+| `apps/server/src/agent` | Agent 设置、OpenCode 运行时、任务队列、trace | [`agentRunManager.ts`](https://github.com/Baokker/SimpleRCPv2/blob/main/apps/server/src/agent/agentRunManager.ts)、`openCodeRuntime.ts`、`openCodeProcess.ts` |
+| `apps/client/src` | React 客户端 | [`App.tsx`](https://github.com/Baokker/SimpleRCPv2/blob/main/apps/client/src/App.tsx)、`api.ts`、`socket.ts` |
+| `apps/client/src/components` | 首页、工作区和各个面板 | `WorkspaceExplorer.tsx`、`EditorArea.tsx`、`AgentPanel.tsx`、`SharedTerminal.tsx` |
+| `packages/shared/src` | 前后端共用的 TypeScript 类型 | `index.ts` |
 | `demo/workspace` | 首次启动导入的 Demo 项目 | `src/projectStatus.js` |
-| `tests` | 服务端测试与 Playwright E2E | `e2e/`、`fixtures/` |
+| `tests` | 服务端测试和 Playwright E2E | `e2e/`、`fixtures/` |
 
-## 二次开发：常见改动落在哪
+链接指向 `main` 分支，`auth/` 目录和 `processEnv.ts` 目前只在 `feature/foundation-identity-isolation` 分支上。
 
-- **加一个 HTTP 接口**：在 `createApp.ts` 里注册，项目相关逻辑通过 `runtimeManager.get(projectId)` 拿到运行时资源。
-- **加一条实时消息**：先在 `packages/shared` 里补类型，再到 `apps/server/src/types.ts` 的 `ClientMessage` / `ServerMessage` 和 `realtime.ts` 的 `handleRealtimeMessage()` 里处理。
-- **改文件持久化策略**：看 `collaborativeDocuments.ts` 的 `schedulePersist` / `persistDocument` / `reloadPath`。
-- **加 Agent 能力或换模型供应商**：`agentRuntime.ts` 定义了运行时应实现的接口，`openCodeRuntime.ts` 是当前实现；任务编排在 `agentRunManager.ts`。
-- **改界面**：从 `apps/client/src/App.tsx` 的工作区布局进入，具体面板都在 `components/` 下。
-- **改成员身份**：`apps/server/src/auth/identity.ts` 负责 `members.json`、HTTP 请求头 `X-SimpleRCP-Member` 和成员恢复；`realtime.ts` 从 WebSocket query 的 `memberId` 解析身份。`permissions.ts` 保留 `can()` 入口，当前所有成员都允许执行已注册操作。
+## 想加功能时改哪里
 
-新增功能应复用“工作区即代码来源”这个约定，客户端和 Agent 共享 `workspaces/<id>`，数据记录写入项目元数据目录。
+| 想做的事 | 从哪里改 |
+| --- | --- |
+| 加一个 HTTP 接口 | 在 `apps/server/src/routes/` 里对应领域的文件中添加，新领域就新建一个文件，再在 `createApp.ts` 里注册。项目相关的资源通过 `runtimeManager.get(projectId)` 获取 |
+| 加一种实时消息 | 先在 `packages/shared` 补类型，再改 `apps/server/src/types.ts` 的 `ClientMessage`、`ServerMessage`，最后在 `realtime.ts` 的 `handleRealtimeMessage()` 里处理 |
+| 改文件写盘策略 | `collaborativeDocuments.ts` 里的 `schedulePersist`、`persistDocument`、`reloadPath` |
+| 换模型供应商或换 Agent | 按 `agentRuntime.ts` 的接口写一个新实现，参考 `openCodeRuntime.ts`；任务编排在 `agentRunManager.ts` |
+| 改界面 | 从 `apps/client/src/App.tsx` 的工作区布局进入，各面板在 `components/` 下 |
+| 加权限控制 | `auth/permissions.ts` 的 `can()`，调用点已经埋在各个接口里 |
 
-## 为什么说它更容易二次开发
+新功能请沿用工作区即代码来源的约定，代码放 `workspaces/<projectId>/`，其他记录放 `projects/<projectId>/`。
 
-对比 Collaboration Tools，SimpleRCPv2 少了几层通用抽象：
+## 已知限制
 
-- 没有远程文件系统代理，文件读写就是服务端本地文件读写。
-- 成员加入就是一次 HTTP 调用，服务端生成并保存 `memberId`，客户端按项目恢复这个身份。
-- 前后端类型集中在一个 `packages/shared` 包，改协议时改动点集中。
-- 终端和 Agent 都是在项目工作区里启动进程，接入新工具不需要改协作层。
+做二次开发前建议先了解这些：
 
-对应地，它也保留了明确的能力边界：没有账号体系、没有命令隔离、没有三方合并、同一项目 Agent 串行执行。成员身份用于归属记录，不提供身份保护。
+- **不做鉴权，也没有命令和文件隔离。** 知道 `memberId` 就能冒充成员；终端和 Agent 能访问服务端用户能读到的所有文件。只适合可信的内部环境。
+- **并发修改会互相覆盖。** 人和 Agent 同时改一个文件时，最终内容取决于谁后写完，系统只给出 `concurrent_change` 提示，被覆盖的内容找不回来。
+- **同一项目的 Agent 任务排队执行。** 不同项目之间可以同时跑。
+- **服务重启后任务不会续跑。** 处于 `running` 或 `queued` 的任务会被标为失败。
+- **同一浏览器的多个标签页共用成员身份。** 要模拟多个人，需要换浏览器或开无痕窗口。
 
-## 当前已知的限制
+每条限制的现象和处理方向，见 SimpleRCPv2 仓库里的 `docs/product/known-issues.md` 和 `docs/product/improvement-roadmap.md`。
 
-以下都是当前基线的已知问题，做二次开发前建议先读一遍：
+## 可以扩展的方向
 
-- Agent 与成员可能互相覆盖同一文件的修改；系统只能提示 `concurrent_change`，不能找回被覆盖内容。
-- 外部进程和成员同时写文件时，最终内容由实际完成顺序决定。
-- 同一项目同一时间只执行一个 Agent run，其他任务排队。
-- 服务中断会把 `running` / `queued` 的 run 标记为失败，不会自动重试。
-- 当前不做鉴权，知道 `memberId` 就可以冒充成员；终端和 Agent 可以运行 shell 命令并访问服务端用户可以读取的文件，只适合可信内部环境。
+以下只是基于现有架构的思路，源码里还没有实现：
 
-完整的现象、影响和完整处理方向见项目内 `docs/product/known-issues.md`，改进方向见 `docs/product/improvement-roadmap.md`。
-
-## 可以扩展的方向（建议，非已实现）
-
-这部分是可以在现有架构上延伸的思路，目前源码还没有实现：
-
-- 用独立工作目录 + base 版本做 Agent 修改的三方合并。
-- 同一项目内多个 Agent 并行执行。
-- 运行恢复：服务重启后续跑未完成的 run。
-- 更完整的 trace 分析界面。
+- 给 Agent 一个独立工作目录，记录开始时的 base 版本，结束后做三方合并，解决并发覆盖。
+- 同一项目里多个 Agent 并行执行。
+- 服务重启后恢复未完成的任务。
+- 更完整的 trace 查看和分析界面。
 
 ## 延伸阅读
 
-- [SimpleRCPv2 项目概览](/simplerpc_v2/overview.md)
-- [SimpleRCPv2 启动与运行](/simplerpc_v2/getting_started.md)
+- [SimpleRCPv2 项目概览](/simplercp_v2/overview.md)
+- [SimpleRCPv2 启动与运行](/simplercp_v2/getting_started.md)
 - [Collaboration Tools 技术与架构](/collaboration_tools/技术栈与架构.md)
 - [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)
