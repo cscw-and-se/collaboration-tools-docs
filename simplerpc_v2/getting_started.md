@@ -59,9 +59,10 @@ pnpm dev
 ├── registry.json
 ├── projects
 │   └── <projectId>
-│       ├── chat.json
 │       ├── project.json
-│       ├── workspace
+│       ├── members.json
+│       ├── chat.json
+│       ├── activity.json
 │       ├── agent-sessions
 │       │   └── <sessionId>
 │       │       └── session.json
@@ -69,16 +70,23 @@ pnpm dev
 │           └── <runId>
 │               ├── run.json
 │               └── trace.jsonl
+├── workspaces
+│   └── <projectId>
+│       └── <project files>
+├── instance
+│   └── migration-<projectId>.*
 └── agent
     └── settings.json
 ```
 
-其中 `workspace/` 就是浏览器、共享终端和 Agent 共同访问的代码目录，也是服务端保存代码的位置。
+`projects/<projectId>/` 保存项目元数据、成员记录、聊天、Activity 和 Agent 运行记录。`workspaces/<projectId>/` 是浏览器、共享终端和 Agent 共同访问的代码目录。旧版本迁移过程中，`instance/` 下会保存 `migration-<projectId>.started`、`migration-<projectId>.copied.json` 和 `migration-<projectId>.complete` 等标记，用于支持中断后继续迁移。
+
+`members.json` 保存服务端生成的 `memberId`、显示名、Role 和时间信息。客户端会按项目把 `memberId` 保存在 `localStorage`；刷新页面或重新打开浏览器时会尝试恢复原成员。HTTP 请求使用 `X-SimpleRCP-Member`，WebSocket 连接使用 query 中的 `memberId`。当前不做鉴权，知道 `memberId` 就可以冒充成员，因此只适合可信内部环境。
 
 ## 5. 体验一次多人协作
 
 1. 打开 `http://127.0.0.1:5173`，从项目列表进入 Demo。
-2. 填写显示名称（可选角色），进入工作区。
+2. 填写显示名称和可选 Role，进入工作区。Role 会保存到成员记录并显示在成员列表中，当前不改变成员权限。
 3. 再开一个浏览器窗口，用另一个显示名称进入同一个 Demo。
 4. 两边同时修改 `src/projectStatus.js`，观察光标、聊天和终端输出。
 5. 在共享终端里运行 Demo 自带命令：
@@ -115,6 +123,7 @@ DEEPSEEK_MODEL=deepseek-chat
 - OpenCode 由 SimpleRCPv2 服务端启动，只监听 `127.0.0.1`。
 - 浏览器读不到 DeepSeek API Key，也不能直接访问 OpenCode 端口。
 - 有运行中或排队任务时，服务端会拒绝修改 Model 或 Enabled，避免中断其他成员的任务。
+- OpenCode 的 `external_directory` 权限设置为 `deny`，Agent 默认只能在项目工作区内操作。
 
 ## 7. 常见配置项
 
@@ -123,6 +132,7 @@ DEEPSEEK_MODEL=deepseek-chat
 | 变量 | 作用 | 默认值 |
 | --- | --- | --- |
 | `SIMPLERCP_DATA_DIR` | 项目数据目录，必须是绝对路径 | 仓库根目录 `.simplercp-data/` |
+| `SIMPLERCP_WORKSPACES_DIR` | 工作区根目录，必须是绝对路径 | 数据目录下的 `workspaces/` |
 | `SIMPLERCP_HOST` | 服务端监听地址 | `127.0.0.1` |
 | `SIMPLERCP_PUBLIC_URL` | 用户访问的浏览器地址 | `http://127.0.0.1:5173` |
 | `PORT` | 服务端端口 | `4000` |
@@ -130,6 +140,11 @@ DEEPSEEK_MODEL=deepseek-chat
 | `DEEPSEEK_API_KEY` | DeepSeek API Key，Agent 任务需要 | 空 |
 | `DEEPSEEK_MODEL` | 默认 Model | `deepseek-chat` |
 | `SIMPLERCP_AGENT_RUN_TIMEOUT_MS` | 单个任务最长运行时间 | `600000` |
+| `SIMPLERCP_IMPORT_ROOTS` | 允许导入目录的根路径，使用逗号分隔 | 未设置时允许导入服务端可读取的目录 |
+| `SIMPLERCP_TERMINAL_HOME` | 终端进程使用的 HOME | 继承服务端环境 |
+| `SIMPLERCP_TERMINAL_ENV_ALLOW` | 允许传给终端的额外环境变量名 | 仅保留基础环境变量 |
+| `SIMPLERCP_AGENT_ENV_ALLOW` | 允许传给 OpenCode 的额外环境变量名 | 基础环境变量和 Agent 配置变量 |
+| `SIMPLERCP_TERMINAL_ENABLED` | 是否启用共享终端 | `true` |
 
 指定其他数据目录：
 
@@ -137,9 +152,11 @@ DEEPSEEK_MODEL=deepseek-chat
 SIMPLERCP_DATA_DIR="/srv/simplercp-data" pnpm dev
 ```
 
-## 8. 公网访问（简）
+设置 `SIMPLERCP_IMPORT_ROOTS` 后，导入目录会先解析 realpath，再检查是否位于允许的根目录中；未设置时，导入接口保持默认行为，允许导入服务端可以读取的目录。终端环境会过滤名称包含 `KEY`、`TOKEN`、`SECRET`、`PASSWORD` 或 `COOKIE` 的变量；`SIMPLERCP_TERMINAL_HOME` 可以为终端设置单独的 HOME。OpenCode 仍需要服务端注入模型配置，OpenCode 的 bash 工具可能读取到模型 Key，这是当前已知限制。
 
-服务端和客户端监听地址都可以配置，公网部署建议由同一个域名提供页面和接口：
+## 8. 内网访问
+
+服务端和客户端监听地址都可以配置，内网反向代理可以由同一个域名提供页面和接口：
 
 ```bash
 SIMPLERCP_HOST="0.0.0.0" \
@@ -151,7 +168,7 @@ pnpm dev
 
 反向代理需要转发普通 HTTP 路径 `/api`，并为 `/ws`、`/yjs`、`/terminal` 开启 WebSocket 转发。页面使用 HTTPS 时浏览器会自动使用 WSS。
 
-需要特别注意：当前版本允许项目成员运行任意 shell 命令，并直接访问服务端项目目录，**没有内置账号认证和命令隔离**。公网部署必须放在可信网络、VPN 或外部身份认证之后，不要直接开放为匿名公共服务。
+当前版本允许项目成员运行 shell 命令并访问服务端用户可以读取的文件，成员身份只用于记录归属和恢复会话，不提供身份保护。知道 `memberId` 的人可以冒充成员，项目管理和全局设置也开放。请只在可信内部环境或 VPN 后使用，不要直接部署到公网；需要对外提供服务时，应在外部身份认证和网络限制之后部署。
 
 ## 9. 测试与构建
 
