@@ -82,7 +82,7 @@ Agent 是服务端启动的 OpenCode 子进程：
 - `agentRunManager.ts` 管理每个项目的任务队列和 session 复用，任务前后各拍一次工作区快照用来对比改了哪些文件，并把 trace 存成文件。
 - `openCodeRuntime.ts` 负责和 OpenCode 通信，实现 `agentRuntime.ts` 里定义的接口。
 
-OpenCode 进程也走环境变量白名单，但它必须拿到模型配置，所以 Agent 的 bash 工具有可能读到 DeepSeek Key。终端则读不到。
+OpenCode 进程也走环境变量白名单，但它必须拿到模型配置，所以 Agent 的 bash 工具有可能读到 DeepSeek Key。终端则读不到。这个限制需要在可信内部环境中使用，并在后续运行审批中处理。
 
 ## 数据目录
 

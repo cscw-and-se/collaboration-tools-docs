@@ -117,7 +117,7 @@ DEEPSEEK_MODEL=deepseek-chat
 SIMPLERCP_DATA_DIR="/srv/simplercp-data" pnpm dev
 ```
 
-终端和 OpenCode 的环境变量是按白名单传的。名字里带 `KEY`、`TOKEN`、`SECRET`、`PASSWORD`、`COOKIE` 的变量不会进入终端，所以在终端里 `env` 看不到 API Key。
+终端和 OpenCode 的环境变量是按白名单传的。名字里带 `KEY`、`TOKEN`、`SECRET`、`PASSWORD`、`COOKIE` 的变量不会进入终端，所以在终端里 `env` 看不到 API Key。OpenCode 的 bash 工具需要继承模型配置，可能读取到 DeepSeek Key，这是当前已知局限。
 
 ## 7. 在内网里给别人用
 
@@ -146,7 +146,7 @@ pnpm build      # TypeScript 检查并构建客户端与服务端
 ## 常见问题
 
 - **浏览器打不开页面**：确认 `pnpm dev` 的两个进程都起来了，再看 `5173` 和 `4000` 端口有没有被占用。
-- **两个窗口里的人变成了同一个**：同一浏览器的普通窗口共用成员身份，换一个浏览器或用无痕窗口。
+- **两个标签页里的人变成了同一个**：当前标签页使用 `sessionStorage` 保存成员身份，`localStorage` 只保存最近选择。打开加入页后，可以在 Participant 下拉框选择已有成员或 `Create a new participant`；选择新成员后填写新的显示名即可。
 - **Agent 任务报错**：先看 Agent 设置页里 OpenCode 的状态，再确认 `.env` 里填了 `DEEPSEEK_API_KEY`。报错信息里的 Key 会显示成 `[REDACTED]`。
 - **任务一直在排队**：同一项目同一时间只执行一个 Agent 任务，前一个结束后才会轮到下一个。
 
