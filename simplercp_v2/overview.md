@@ -6,8 +6,6 @@ SimpleRCPv2 是一个在浏览器里使用的实时协同编程系统。几个�
 
 源代码仓库：[github.com/Baokker/SimpleRCPv2](https://github.com/Baokker/SimpleRCPv2)
 
-> **版本说明**：本组文档按 `feature/foundation-identity-isolation` 分支编写。轻量成员身份（`members.json`、`auth/` 目录）、工作区与元数据分开存放、终端和 Agent 的环境变量过滤，这几项目前只在该分支上，合入 `main` 之前，`main` 上的代码与文档描述会有出入。
-
 ## 适合谁读
 
 - 想体验一次实时协同编程、又不想装编辑器插件的同学。

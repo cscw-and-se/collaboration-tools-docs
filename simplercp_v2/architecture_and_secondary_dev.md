@@ -111,7 +111,7 @@ OpenCode 进程也走环境变量白名单，但它必须拿到模型配置，�
 
 ## 成员身份
 
-加入项目是一次 HTTP 调用。服务端生成 `memberId`，和显示名、Role 一起存进 `members.json`；客户端按项目把 `memberId` 存在浏览器里，刷新页面后带着它恢复成同一个成员。之后 HTTP 请求通过 `X-SimpleRCP-Member` 请求头带上 `memberId`，WebSocket 通过 query 带上。
+加入项目是一次 HTTP 调用。服务端生成 `memberId`，和显示名、Role 一起存进 `members.json`；客户端按项目把 `memberId` 存在当前标签页的 `sessionStorage` 里，刷新页面后带着它恢复成同一个成员；新开的标签页没有这份记录，会重新显示加入页。`localStorage` 只保存最近一次的选择，用来在加入页里预选。之后 HTTP 请求通过 `X-SimpleRCP-Member` 请求头带上 `memberId`，WebSocket 通过 query 带上。
 
 聊天、Agent 任务和 session 的归属由服务端根据这个身份填写，客户端在消息里自己写的 `memberId` 会被忽略。`permissions.ts` 里保留了 `can()` 作为统一的权限入口，目前对所有成员都返回允许，以后要加权限控制时从这里改。
 
@@ -131,7 +131,7 @@ OpenCode 进程也走环境变量白名单，但它必须拿到模型配置，�
 | `demo/workspace` | 首次启动导入的 Demo 项目 | `src/projectStatus.js` |
 | `tests` | 服务端测试和 Playwright E2E | `e2e/`、`fixtures/` |
 
-链接指向 `main` 分支，`auth/` 目录和 `processEnv.ts` 目前只在 `feature/foundation-identity-isolation` 分支上。
+表中链接指向 `main` 分支。
 
 ## 想加功能时改哪里
 
@@ -154,7 +154,7 @@ OpenCode 进程也走环境变量白名单，但它必须拿到模型配置，�
 - **并发修改会互相覆盖。** 人和 Agent 同时改一个文件时，最终内容取决于谁后写完，系统只给出 `concurrent_change` 提示，被覆盖的内容找不回来。
 - **同一项目的 Agent 任务排队执行。** 不同项目之间可以同时跑。
 - **服务重启后任务不会续跑。** 处于 `running` 或 `queued` 的任务会被标为失败。
-- **同一浏览器的多个标签页共用成员身份。** 要模拟多个人，需要换浏览器或开无痕窗口。
+- **复制出来的标签页会沿用原来的身份。** 浏览器的复制标签页功能，以及从页面里点开的新标签页，会带上原标签页的 `sessionStorage`，因此还是同一个成员。要以另一个人加入，请新开标签页后手动输入地址。
 
 每条限制的现象和处理方向，见 SimpleRCPv2 仓库里的 `docs/product/known-issues.md` 和 `docs/product/improvement-roadmap.md`。
 
