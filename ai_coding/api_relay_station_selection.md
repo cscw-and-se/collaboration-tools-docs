@@ -14,6 +14,8 @@
 
 截至 2026 年 9 月，我自己主要在用 [GGB](https://ggb.gg/register?aff=DPHLD8XZLY24)，主要跑 Codex，价格和稳定性都还可以，供参考。
 
+另外推荐[SudoCode](https://sudocode.chat/sign-up?aff=Ipvp)，用 Claude 和 GPT 都很流畅。
+
 第一次用任何一家都建议先小额充值，跑通、用稳了再加大。
 
 ## 先用 Hvoy 做检测和价格参考
