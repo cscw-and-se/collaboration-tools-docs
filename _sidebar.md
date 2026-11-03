@@ -10,6 +10,7 @@
   - [AI 中转站怎么选](ai_coding/api_relay_station_selection.md)
   - [GitHub Education（过时）](ai_coding/github_education.md)
   - [如何学习 Agent（选读）](ai_coding/year_of_agents.md)
+  - [用 AI 写论文](ai_coding/ai_paper_writing_tutorial.md)
 - 技术栈
   - [软件开发前置知识速通](tech_stack/software_dev_prerequisites.md)
   - [Shell](tech_stack/shell.md)
@@ -26,12 +27,18 @@
   - [核心交互 - 命令、UI 与上下文](vscode_plugin/command_and_basic_ui.md)
   - [编辑器与文件系统](vscode_plugin/editor_api.md)
   - [视图、配置与状态](vscode_plugin/sidebar_and_webview.md)
+- 科研流程
+  - [科研全流程地图](research/research_roadmap.md)
+- 学习路线与求职
+  - [本科生可以先看的课](career/learning_path.md)
+- [优质网址导航](useful_links.md)
 - 一些笔记
   - [信息搜索指南](search.md)
   - [开发者工具推荐](recommended_tools.md)
   - [如何使用 EndNote 进行文献管理](random_notes/using_endnote.md)
   - [如何编辑本文档](random_notes/how_to_write_this_doc.md)
   - [如何进行文献综述](random_notes/how_to_write_a_literature_review.md)
+  - [用 AI 读论文](random_notes/reading_papers_with_ai.md)
   - [我推荐的公众号](random_notes/recommended_wechat_accounts.md)
 - SimpleRCPv2
   - [项目概览](simplercp_v2/overview.md)
@@ -87,6 +94,7 @@
   - [未来的研究方向](rcp/future_research.md)
 - 一些课程推荐（附带AI总结笔记）
   - [CSDIY（强烈推荐）](https://csdiy.wiki/)
+  - [Hands-On Modern RL（强化学习）](https://walkinglabs.github.io/hands-on-modern-rl/)
   - Missing Semester
     - [Course Overview + Introduction to the Shell](courses/missing_semester/course_overview_and_introduction_to_the_shell.md)
     - [Shell Tools and Scripting](courses/missing_semester/shell_tools_and_scripting.md)
