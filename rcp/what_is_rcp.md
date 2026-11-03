@@ -38,11 +38,11 @@
 
 | 工具 | 开发者/平台 | 简介 |
 | :--- | :--- | :--- |
-| **[Live Share](https://visualstudio.microsoft.com/zh-hans/services/live-share/)** | Microsoft | VS Code 和 Visual Studio 的插件，功能成熟。 |
-| **[Code With Me](https://www.jetbrains.com/code-with-me/)** | JetBrains | 面向 JetBrains 系列 IDE 的协同开发服务。 |
-| **[Zed](https://zed.dev/)** | Zed Industries | 主打高性能、内置协同功能的代码编辑器。 |
-| **[Replit](https://replit.com/)** | Replit | 浏览器端的 Cloud IDE，天然支持多人协作。 |
-| **[CodeSandbox](https://codesandbox.io/)** | CodeSandbox | Cloud IDE，在 Web 开发领域协同功能用得较多。 |
+| [**Live Share**](https://visualstudio.microsoft.com/zh-hans/services/live-share/) | Microsoft | VS Code 和 Visual Studio 的插件，功能成熟。 |
+| [**Code With Me**](https://www.jetbrains.com/code-with-me/) | JetBrains | 面向 JetBrains 系列 IDE 的协同开发服务。 |
+| [**Zed**](https://zed.dev/) | Zed Industries | 主打高性能、内置协同功能的代码编辑器。 |
+| [**Replit**](https://replit.com/) | Replit | 浏览器端的 Cloud IDE，天然支持多人协作。 |
+| [**CodeSandbox**](https://codesandbox.io/) | CodeSandbox | Cloud IDE，在 Web 开发领域协同功能用得较多。 |
 
 Live Share 可以直接在 VS Code 中使用，Code With Me 可以直接在 JetBrains 系列 IDE 中使用（没有订阅的话，可以通过[申请学生权益包](https://www.jetbrains.com/zh-cn/academy/student-pack/)获取）。Replit 可以直接在浏览器里使用。
 
@@ -50,7 +50,7 @@ Live Share 可以直接在 VS Code 中使用，Code With Me 可以直接在 JetB
 
 如果你希望从学术角度深入理解 RCP，可以读这篇论文：
 
-> **[Understanding Real-Time Collaborative Programming: A Study of Visual Studio Live Share](https://dl.acm.org/doi/full/10.1145/3643672)**
+> [**Understanding Real-Time Collaborative Programming: A Study of Visual Studio Live Share**](https://dl.acm.org/doi/full/10.1145/3643672)
 
 它通过采访 Live Share 的真实用户，总结了 RCP 的特点、用户需求和核心挑战。仓库的 `./assets/Understanding Real-Time Collaborative Programming.pdf` 也附上了原文。
 

@@ -10,9 +10,9 @@
 
 在开始之前，请务必将以下官方页面加入你的书签，它们是你未来开发中最权威、最可靠的参考：
 
-* **[官方入门教程 (Your First Extension)](https://code.visualstudio.com/api/get-started/your-first-extension)**: 官方手把手教你创建第一个插件。
-* **[官方 API 参考文档 (API Reference)](https://code.visualstudio.com/api/references/vscode-api)**: VS Code 所有可用 API 的“新华字典”，最权威的查询手册。
-* **[官方插件示例仓库 (Extension Samples)](https://github.com/microsoft/vscode-extension-samples)**: 包含数十个功能各异的官方示例项目，是学习特定功能的最佳“源码教科书”。
+* [**官方入门教程 (Your First Extension)**](https://code.visualstudio.com/api/get-started/your-first-extension): 官方手把手教你创建第一个插件。
+* [**官方 API 参考文档 (API Reference)**](https://code.visualstudio.com/api/references/vscode-api): VS Code 所有可用 API 的“新华字典”，最权威的查询手册。
+* [**官方插件示例仓库 (Extension Samples)**](https://github.com/microsoft/vscode-extension-samples): 包含数十个功能各异的官方示例项目，是学习特定功能的最佳“源码教科书”。
 
 ### **第一章：基础入门 - Hello, World!**
 * `1.1 环境搭建与项目创建`

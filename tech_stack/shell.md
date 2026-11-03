@@ -88,12 +88,12 @@ echo "项目初始化完成！"
 
 要系统学习 Shell 和命令行工具，推荐 MIT 的 The Missing Semester。以下四讲最值得先看：
 
-1. **[The Shell](https://missing.csail.mit.edu/2020/course-shell/)**：文件导航、I/O 重定向、基本操作。
-2. **[Shell Tools and Scripting](https://missing.csail.mit.edu/2020/shell-tools/)**：`grep`、`sed`、`awk` 等工具与脚本自动化。
-3. **[Editors (Vim)](https://missing.csail.mit.edu/2020/editors/)**：服务器上常用的终端编辑器。
+1. [**The Shell**](https://missing.csail.mit.edu/2020/course-shell/)：文件导航、I/O 重定向、基本操作。
+2. [**Shell Tools and Scripting**](https://missing.csail.mit.edu/2020/shell-tools/)：`grep`、`sed`、`awk` 等工具与脚本自动化。
+3. [**Editors (Vim)**](https://missing.csail.mit.edu/2020/editors/)：服务器上常用的终端编辑器。
     - 打开 Vim 时处于**普通模式**，按 `i` 进入**插入模式**开始输入，按 `Esc` 回到普通模式。
     - `:wq` 保存并退出，`:q!` 不保存强制退出。
     - 终端里运行 `vimtutor` 有官方自带的交互式教程。
-4. **[The Command-Line Environment](https://missing.csail.mit.edu/2020/command-line/)**：配置 shell 环境，理解进程和环境变量。
+4. [**The Command-Line Environment**](https://missing.csail.mit.edu/2020/command-line/)：配置 shell 环境，理解进程和环境变量。
 
 命令行初期确实不如图形界面直观，但它带来的自动化能力回报很高。

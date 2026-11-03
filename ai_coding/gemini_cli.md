@@ -53,7 +53,7 @@ brew install gemini-cli
 
 要使用 Gemini，你需要一个 API 密钥。你可以通过以下步骤免费获取：
 
-1.  访问 **[Google AI Studio](https://aistudio.google.com/)**。
+1.  访问 [**Google AI Studio**](https://aistudio.google.com/)。
 2.  使用你的 Google 账户登录。
 3.  在页面左侧菜单中，点击 **"Get API key"** -\> **"Create API key"**。
 4.  复制生成的密钥字符串。
