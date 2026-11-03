@@ -19,16 +19,16 @@
 文档里的内容分**必读**和**选读**两类。如果你刚加入项目、想尽快上手，建议按下面这个顺序读：
 
 1. **写在前面**：也就是本文，先了解这份文档想解决什么问题。
-2. **[实时协同编程](/rcp/what_is_rcp.md)**：先搞懂 RCP 的基本概念，再看 [OT 与 CRDT 的取舍](/rcp/ot_vs_crdt.md)。
-3. **[AI 编程](/ai_coding/why_ai_coding.md)**：了解我们推荐的 AI 工具和使用方式。
-4. **[项目概览](/collaboration_tools/project_overview.md)**：搞清楚 Collaboration Tools 有哪些模块、各自负责什么。
-5. **[项目是怎么运行的](/collaboration_tools/how_it_works.md)**：跑通一次端到端流程，建立整体认知。
+2. [**实时协同编程**](/rcp/what_is_rcp.md)：先搞懂 RCP 的基本概念，再看 [OT 与 CRDT 的取舍](/rcp/ot_vs_crdt.md)。
+3. [**AI 编程**](/ai_coding/why_ai_coding.md)：了解我们推荐的 AI 工具和使用方式。
+4. [**项目概览**](/collaboration_tools/project_overview.md)：搞清楚 Collaboration Tools 有哪些模块、各自负责什么。
+5. [**项目是怎么运行的**](/collaboration_tools/how_it_works.md)：跑通一次端到端流程，建立整体认知。
 
 其余内容属于**选读**（各模块源码详解、技术栈补充、Git、VS Code 插件开发、课程笔记等）。其中「项目分模块讲解」里那些逐行的编码详解，现在不必细读：日常编码基本都交给 AI 了，你只要大概理解各模块的架构和职责，需要改某一块时再配合 AI 深入看实现就行。
 
 ## 如何运行本文档
 
-为了提供简单、轻量的阅读和编辑体验，本文档基于 **[docsify](https://docsify.js.org/#/)** 框架构建。你只需要使用 Markdown 语法便可以轻松编辑，并通过以下步骤在本地运行。
+为了提供简单、轻量的阅读和编辑体验，本文档基于 [**docsify**](https://docsify.js.org/#/) 框架构建。你只需要使用 Markdown 语法便可以轻松编辑，并通过以下步骤在本地运行。
 
 ### 第一步：安装 Node.js (推荐使用 nvm)
 

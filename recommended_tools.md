@@ -100,6 +100,10 @@ IDE (Integrated Development Environment) 不只是能写代码的文本编辑器
 * **简介**：一个功能强大的笔记软件，支持多种数据格式，包括文本、表格、幻灯片、数据库等。
 * **官网**：[https://www.notion.so/](https://www.notion.so/)
 
+### **macOS 软件清单**
+* **简介**：我自己在 Mac 上常装的软件，包括 Raycast、Warp、Termius、OrbStack、豆包输入法、Skim 等，附带各自的用途说明。
+* **链接**：[我推荐安装的 MacOS 软件（2026 年版）](https://baokker-blog.top/2026/10/19/%E6%88%91%E6%8E%A8%E8%8D%90%E5%AE%89%E8%A3%85%E7%9A%84MacOS%E8%BD%AF%E4%BB%B6%EF%BC%882026%E5%B9%B4%E7%89%88%EF%BC%89/)
+
 ---
 
 花点时间配置一套适合自己的工具是值得的。工具顺手之后，解决问题的过程也会轻松很多。

@@ -42,48 +42,48 @@ AI 的用途远不止“代码补全”，日常开发里至少能帮你做这�
 
 以下是一些我个人比较推荐的工具。**这份清单一定有时效性**：AI 工具几个月就是一轮洗牌，今天的主力方案，半年后未必还是。所以不要把它当成固定答案，更重要的是保持开放心态，看到新东西就自己试一试。
 
-* **[Claude Code](https://claude.ai/code)**
+* [**Claude Code**](https://claude.ai/code)
     * **简介**：Anthropic 官方的 CLI 编程助手，直接在终端里运行，能读取整个代码库、执行命令、修改文件。支持 Plan 模式（先规划再执行）和 `@` 上下文引用。
     * **推荐理由**：它非常适合做复杂代码库里的持续协作：解释源码、拆任务、改代码、补文档、跑测试都很顺。文风也比较简洁直接，适合需要技术深度和表达质量的场景。
     * **适合谁**：习惯终端、愿意让 Agent 深度参与项目的人。
 
-* **[CodeX](https://openai.com/zh-Hans-CN/codex/)**
+* [**CodeX**](https://openai.com/zh-Hans-CN/codex/)
     * **简介**：OpenAI 的 AI Coding Agent，运行在本地/云端项目根目录，可直接读写代码、执行命令、运行测试并生成提交信息，支持“计划执行 + 实时反馈”的工作模式。
     * **推荐理由**：相比纯聊天式模型，CodeX 拥有完整的命令执行环境（CLI Harness），能够读取整个仓库、批量编辑文件、解释终端输出并持续迭代，适合需要落地代码、修复 Bug 或撰写技术文档的场景。
     * 后面的文档会提到性价比较高的中转站和使用方式。
 
 ![](assets/2025-12-14-16-55-09.png)
 
-* **[OpenCode](https://github.com/anomalyco/opencode)**
+* [**OpenCode**](https://github.com/anomalyco/opencode)
     * **简介**：开源的终端 AI 编程助手，支持接入多种模型（Claude、GPT、Gemini、本地模型等）。核心卖点是把代码和上下文留在本地。
     * **推荐理由**：本地优先、模型可自选，配合社区增强配置可以搭出一套很顺手的终端工作流。
 
-* **[DeepSeek Harness (dsh)](https://github.com/deepseek-ai/deepseek-harness)**
+* [**DeepSeek Harness (dsh)**](https://github.com/deepseek-ai/deepseek-harness)
     * **简介**：DeepSeek 官方开源（MIT）的 Agent Harness，2026 年 8 月发布开发者预览版，设计理念是“一切皆插件”——模型、工具、技能、会话、沙箱、UI 都可以替换。
     * **推荐理由**：它把 Agent 的各个部件都拆成了插件，非常适合拿来理解一个 Harness 到底由什么组成，也很适合动手改造。国内网络环境下获取和使用都比较方便。
     * **适合谁**：想深入理解 Agent 架构，或者想自己定制 Agent 工作流的人。
 
-* **[Pi (π)](https://github.com/earendil-works/pi)**
+* [**Pi (π)**](https://github.com/earendil-works/pi)
     * **简介**：由 Mario Zechner（libGDX 作者）发起的开源终端 Coding Agent Harness，同样采用 MIT 协议。走极简路线，系统提示很短，强调低 token 消耗和可扩展。
     * **推荐理由**：代码量相对可控，是“轻量级 Harness 应该长什么样”的一个好样本。支持接入多家模型，可以作为 Claude Code、CodeX 之外的另一种选择。
 
-* **[Cursor](https://www.cursor.com/)**
+* [**Cursor**](https://www.cursor.com/)
     * **简介**：一款“AI-First”的代码编辑器，围绕 AI 重新设计了许多交互，代码库索引和问答能力非常强大。
     * **获取**：提供年度教育优惠，但可能需要国外的教育邮箱进行验证。（笔者的建议：很多 AI 工具的免费途径一般都会先松后紧，因为申请的人会越来越多，所以看见有合适的机会不要错过）
 
 ![](assets/2025-12-14-16-55-33.png)
 
-* **[Trae (字节跳动 IDE)](https://www.trae.ai/)**
+* [**Trae (字节跳动 IDE)**](https://www.trae.ai/)
     * **简介**：字节跳动推出的 AI IDE。其特点是根据地区不同，集成了不同的后端大模型。国内版支持豆包（Doubao）、DeepSeek 等模型，海外版则支持 Claude 等。
 
-* **[GitHub Copilot](https://github.com/features/copilot)**
+* [**GitHub Copilot**](https://github.com/features/copilot)
     * **简介**：由 GitHub 推出的 AI 编程助手，深度集成于 VS Code 等主流编辑器中，是很多人最早接触的 AI 编程工具。
     * **推荐理由**：获取难度低，补全体验顺手，可以通过 **GitHub Education** 学生包免费获取，后续章节会介绍申请方法。
     * **2026 年 9 月更新**：如果只是把它当作 VS Code 里的补全插件，相较于 Claude Code、CodeX 这类 Agent，它已经不太像主力方案了。作为入门工具，或者日常编辑器里的轻量补全仍然够用，但建议尽早接触完整的 Agent 工作流。
 
 ![](assets/2025-12-14-16-56-14.png)
 
-* **[命令行 AI 工具 (CLI)](https://github.com/google/gemini-cli)**
+* [**命令行 AI 工具 (CLI)**](https://github.com/google/gemini-cli)
     * **简介**：对于热爱终端的开发者，`gemini-cli` 等工具可以把大模型的能力直接带到命令行中，方便快速查询或执行脚本任务。
     * **2026 年 9 月更新**：Gemini CLI 现在存在感相对弱一些，不是我最推荐的主力 AI coding 工具。但它适合轻量命令行问答、Google 生态体验、多模态尝试，国内获取难度也相对低，可以作为补充工具。
 

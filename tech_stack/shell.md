@@ -17,8 +17,8 @@
 
 - **`↑` 上箭头**：调出上一条命令，连续按可以回溯历史。
 - **`Tab` 补全**：输入前几个字母后按 `Tab` 自动补全命令或路径；连按两次会列出所有候选。
-- **`Ctrl + C`**：中断当前正在运行的程序。
-- **`Ctrl + R`**：反向搜索历史命令，输入关键词即可找到匹配的最近命令。
+- <strong>`Ctrl + C`</strong>：中断当前正在运行的程序。
+- <strong>`Ctrl + R`</strong>：反向搜索历史命令，输入关键词即可找到匹配的最近命令。
 - **`|`（管道）**：把上一条命令的输出作为下一条命令的输入。
   ```bash
   ls -l | grep ".md" | wc -l
@@ -31,29 +31,29 @@
 
 ## 基础命令：文件与目录
 
-- **`ls`**：列出目录内容。
+- <strong>`ls`</strong>：列出目录内容。
     - `ls -l`：显示权限、大小、修改时间等详情。
     - `ls -a`：包含以 `.` 开头的隐藏文件。
-- **`cd`**：切换目录。
+- <strong>`cd`</strong>：切换目录。
     - `cd my_folder`：进入子目录。
     - `cd ..`：返回上一级。
     - `cd` 或 `cd ~`：回到主目录。
-- **`pwd`**：显示当前完整路径。
-- **`cat`**：查看文件内容。
+- <strong>`pwd`</strong>：显示当前完整路径。
+- <strong>`cat`</strong>：查看文件内容。
     ```bash
     cat README.md
     ```
-- **`cp`**：复制文件或目录。
+- <strong>`cp`</strong>：复制文件或目录。
     ```bash
     cp source.txt destination.txt
     cp -r source_dir/ destination_dir/   # -r 递归复制目录
     ```
-- **`mv`**：移动或重命名。
+- <strong>`mv`</strong>：移动或重命名。
     ```bash
     mv old_name.txt new_name.txt   # 重命名
     mv my_file.txt my_folder/      # 移动到目录
     ```
-- **`rm`**：删除文件或目录。**没有回收站，请谨慎使用。**
+- <strong>`rm`</strong>：删除文件或目录。<strong>没有回收站，请谨慎使用。</strong>
     ```bash
     rm my_file.txt
     rm -r my_folder/   # 删除目录及其内容
@@ -88,12 +88,12 @@ echo "项目初始化完成！"
 
 要系统学习 Shell 和命令行工具，推荐 MIT 的 The Missing Semester。以下四讲最值得先看：
 
-1. **[The Shell](https://missing.csail.mit.edu/2020/course-shell/)**：文件导航、I/O 重定向、基本操作。
-2. **[Shell Tools and Scripting](https://missing.csail.mit.edu/2020/shell-tools/)**：`grep`、`sed`、`awk` 等工具与脚本自动化。
-3. **[Editors (Vim)](https://missing.csail.mit.edu/2020/editors/)**：服务器上常用的终端编辑器。
+1. [**The Shell**](https://missing.csail.mit.edu/2020/course-shell/)：文件导航、I/O 重定向、基本操作。
+2. [**Shell Tools and Scripting**](https://missing.csail.mit.edu/2020/shell-tools/)：`grep`、`sed`、`awk` 等工具与脚本自动化。
+3. [**Editors (Vim)**](https://missing.csail.mit.edu/2020/editors/)：服务器上常用的终端编辑器。
     - 打开 Vim 时处于**普通模式**，按 `i` 进入**插入模式**开始输入，按 `Esc` 回到普通模式。
     - `:wq` 保存并退出，`:q!` 不保存强制退出。
     - 终端里运行 `vimtutor` 有官方自带的交互式教程。
-4. **[The Command-Line Environment](https://missing.csail.mit.edu/2020/command-line/)**：配置 shell 环境，理解进程和环境变量。
+4. [**The Command-Line Environment**](https://missing.csail.mit.edu/2020/command-line/)：配置 shell 环境，理解进程和环境变量。
 
 命令行初期确实不如图形界面直观，但它带来的自动化能力回报很高。
