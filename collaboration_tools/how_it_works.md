@@ -77,7 +77,7 @@ npm run open -- --workspace "/你的项目绝对路径" --agents host
 node --version
 ```
 
-上一节的命令已经完成依赖安装和环境文件创建。下面的章节补充运行环境要求和手动启动方式，便于排查启动问题。
+上一节的命令已经完成依赖安装和环境文件创建。如果需要分别启动服务端和两个客户端，用于调试或排查问题，见 [手动启动与加入机制](/collaboration_tools/manual_start_and_join.md)。
 
 ## 3. Agent 协作方式
 
@@ -114,169 +114,17 @@ Agent 使用的 Profile 由启动器根据根目录 `.env` 自动生成，配置
 
 两个 Agent 的进程统一由 Host 启动，Guest 拥有自己的 Agent 身份和任务会话。成员可以提及任意 Agent；当前属主信息用于标识所属协作者。每个 Agent 的任务按 FIFO 执行，默认等待队列上限为 5，Host 统一审阅两个 Agent 的提案。文件在审阅前发生变化时，基准 hash 检查会返回 conflict，可以发送 `@AgentName /retry` 重新生成提案。聊天记录在退出会话后清除。
 
-## 4. 启动后端服务（open-collaboration-server）
+## 4. 常见问题：遇到 X 先看 Y
 
-在 `collaboration-tools` 项目根目录执行：
+- **启动命令报错，或者窗口没有打开**：自动启动器目前面向 macOS，并要求 VS Code 安装在 `/Applications/Visual Studio Code.app`，Node.js 版本不低于 `20.10.0`。先逐项确认这三点。
+- **Agent 没有响应**：先确认 `.env` 里的 `DEEPSEEK_API_KEY` 已经填写，并且消息里包含对应 Agent 的 `@名称`。
+- **提案提示 conflict**：说明文件在审阅前被改动过，发送 `@AgentName /retry` 让 Agent 重新生成。
+- **Guest 一直转圈，最后加入超时**：多半是 Host 没有点 Allow，详细原因见 [手动启动与加入机制](/collaboration_tools/manual_start_and_join.md)。
+- **能看到文件但编辑不同步**：先看 [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)，确认文本同步链路。
 
-```bash
-OCT_ACTIVATE_SIMPLE_LOGIN=true npm run start
-```
+## 5. 延伸阅读
 
-默认监听 `http://localhost:8100`。
-
-如果你后面遇到“怎么都连不上”，先别怀疑人生，第一步就是确认这个端口确实在监听。
-
-## 5. 启动 VS Code 扩展（open-collaboration-vscode）
-
-协作至少需要两个客户端：一个 Host（共享者），一个 Guest（加入者）。
-
-### 5.1 先确认 serverUrl 配置
-
-扩展会读 VS Code settings 里的 `oct.serverUrl`（默认值在扩展的 `package.json` 里）。
-
-你可以先确认默认值是否是你要连接的 server：
-
-- 位置：`collaboration-tools/packages/open-collaboration-vscode/package.json`
-- 字段：`oct.serverUrl`
-
-### 5.2 启动 Host（调试模式）
-
-1. 用 VS Code 打开 `collaboration-tools/packages/open-collaboration-vscode`
-2. 打开 `src/extension.ts`
-3. 按 `F5` 启动调试
-
-这会打开一个新的 Extension Development Host 窗口。这个窗口就是 Host 客户端。
-
-### 5.3 启动 Guest（脚本方式）
-
-项目提供了一个脚本帮你启动第二个 VS Code 实例：
-
-```bash
-chmod +x collaboration-tools/packages/open-collaboration-vscode/launch-guest.sh
-./collaboration-tools/packages/open-collaboration-vscode/launch-guest.sh
-```
-
-它会创建一套独立的临时用户数据目录，确保两个 VS Code 实例互不干扰。
-
-## 6. 创建房间与加入房间
-
-### 6.1 Host 创建房间
-
-在 Host 窗口底部状态栏找到 Share（或 Open Collaboration）入口，创建新会话。
-
-你会看到它最终弹出邀请码，这就是 `roomId`。把它发给 Guest。
-
-### 6.2 Guest 加入房间
-
-Guest 使用 Join Room 输入邀请码加入。
-
-这里有个重要细节：**Guest 加入时通常会“切换工作区”，你会看到 `oct://` scheme**。
-
-- Guest 使用扩展提供的远程文件系统代理访问共享内容。
-
-后面读 [文件系统代理与远程访问](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/文件系统代理与远程访问.md) 会讲清楚细节。
-
-## 7. 加入超时与 Host 审批
-
-很多人第一次跑会卡在 join timeout：Guest 一直转圈，最后超时。
-
-你可以先把它当成一个三方协作：
-
-- Guest 向 server 提交 join 请求
-- server 把 join 请求转发给 Host
-- Host 弹窗询问是否允许加入
-
-如果 Host 没点 Allow，Guest 就只能一直等。
-
-### 7.1 Host 侧为什么会弹出“Allow / Deny”
-
-Host 侧处理 join request 的逻辑在 `CollaborationInstance` 里。你可以看到它直接用 VS Code 弹窗让你选：
-
-```ts
-connection.peer.onJoinRequest(async (_, user) => {
-    const message = vscode.l10n.t(
-        'User {0} via {1} login wants to join the collaboration session',
-        user.email ? `${user.name} (${user.email})` : user.name,
-        user.authProvider ?? 'unknown'
-    );
-    const allow = vscode.l10n.t('Allow');
-    const deny = vscode.l10n.t('Deny');
-    const result = await vscode.window.showInformationMessage(message, allow, deny);
-    const roots = vscode.workspace.workspaceFolders ?? [];
-    return result === allow ? {
-        workspace: {
-            name: vscode.workspace.name ?? 'Collaboration',
-            folders: roots.map(e => e.name)
-        }
-    } : undefined;
-});
-```
-
-这段代码同时解释了另一件事：
-
-- Host 允许加入时，会把当前 workspace 的文件夹列表返回给 Guest。
-
-### 7.2 Guest 加入后为什么会“替换工作区文件夹”
-
-Guest 拿到 server 返回的 workspace 信息后，会把它映射成 `oct://` 形式的 workspace folders。
-
-```ts
-const workspaceFolders = (vscode.workspace.workspaceFolders ?? []);
-const workspace = roomClaim.workspace;
-const newFolders = workspace.folders.map(folder => ({
-    name: folder,
-    uri: CollaborationUri.create(workspace.name, folder)
-}));
-const uri = await storeWorkspace(newFolders, this.context.globalStorageUri);
-if (uri) {
-    await vscode.commands.executeCommand(CodeCommands.OpenFolder, uri, {
-        forceNewWindow: false,
-        forceReuseWindow: true,
-        noRecentEntry: true
-    });
-    return true;
-} else {
-    return vscode.workspace.updateWorkspaceFolders(0, workspaceFolders.length, ...newFolders);
-}
-```
-
-Guest 打开由扩展提供的远程工作区。
-
-### 7.3 server 端 join 请求的等待与超时
-
-server 端 `RoomManager.requestJoin()` 做了两件事：
-
-- 给这次 join 请求分配一个 `responseId`（用于轮询 `/api/session/poll/:token`）
-- 把请求作为协议消息发给 Host，等待 Host 回包（最长 5 分钟）
-
-```ts
-const responseId = this.credentials.secureId();
-const timeout = setTimeout(() => {
-    pollResult.update({
-        code: 'JoinTimeout',
-        message: 'Join request has timed out',
-        params: [],
-        failure: true
-    });
-    pollResult.dispose();
-}, 300_000);
-
-const requestMessage = RequestMessage.create(Messages.Peer.Join, this.credentials.secureId(), '', room.host.id, [user]);
-const responsePromise = this.messageRelay.sendRequest(room.host, requestMessage, 300_000);
-```
-
-出现 join timeout 时，检查 Host 的加入通知：
-
-- Host 端有没有弹窗？有没有点 Allow？
-
-## 8. 常见问题：遇到 X 先看 Y
-
-- **Guest 加入后工作区是空的**：先确认 Host 端当前 workspace folder 是否为空；再看 Guest 的 folder 映射逻辑（上面的 `newFolders` 段）。
-- **能看到文件但编辑不同步**：先看 [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)，确认文本同步链路；再回到 VS Code 端的 `collaboration-instance.ts` 看文档更新节流逻辑。
-- **Guest 编辑时被拒绝**：先看 Host 是否设置成 readonly，会触发 guest 文件系统 provider 以只读模式注册。
-
-## 9. 延伸阅读
-
-- [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)
+- [项目概览](/collaboration_tools/project_overview.md)
+- [手动启动与加入机制](/collaboration_tools/manual_start_and_join.md)
+- [技术栈与架构](/collaboration_tools/技术栈与架构.md)
 - [open-collaboration-vscode 模块](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/open-collaboration-vscode模块.md)
-- [房间生命周期管理](/collaboration_tools/核心模块详解/open-collaboration-server模块/房间与用户管理机制/房间生命周期管理.md)
