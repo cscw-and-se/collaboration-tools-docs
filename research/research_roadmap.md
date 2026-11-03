@@ -82,5 +82,6 @@ AI 可以根据你的大纲生成 PPT 的页面结构，也可以画流程图，
 
 ## 延伸阅读
 
+- [毕设与论文时间线](/research/thesis_timeline.md)
 - [优质网址导航](/useful_links.md)
 - [AI 使用实践](/ai_coding/ai_practice_and_boundaries.md)

@@ -1,205 +1,128 @@
-# Collaboration Tools 项目概览（从一次协作会话开始）
+# Collaboration Tools 项目概览
 
-第一次打开 `collaboration-tools`，最容易让人迷糊的往往不是某个类怎么写，而是脑子里缺一条“端到端主线”：你在 VS Code 里点一下 Share/Join，背后同时牵动了房间创建、鉴权、文件系统代理、Yjs 文本同步、awareness（光标/选区/在线状态）同步。
+Collaboration Tools 是一套让多人在各自的 VS Code 里实时共同编辑同一个项目的工具。我们在它的基础上加入了 Agent 协作能力，用来研究多人与多个 Agent 如何在同一个项目里一起工作。
 
-建议你先按 [项目是怎么运行的](/collaboration_tools/how_it_works.md) 把 server + 两个 VS Code 跑起来，再回来看这页对照代码，会更顺。
+读完这篇，你可以回答三个问题。这个项目能做什么，它由哪几块组成，一次协作会话在背后经历了什么。至于怎么把它跑起来，见 [如何运行](/collaboration_tools/how_it_works.md)。
 
-## 从一次真实协作会话开始（你是 Host）
+## 适合谁读
 
-假设你是 Host（发起者）：
+- 刚加入课题组，需要先对底座有整体印象的同学。
+- 准备在底座上做毕设或实验，想知道自己的改动会落在哪一块的同学。
 
-1. 你在 VS Code 打开一个本地工作区。
-2. 你点状态栏的 Open Collaboration，选择 Create。
-3. 扩展向 server 创建房间，拿到 `roomId`（邀请码）和 `roomToken`（JWT，房间会话令牌）。
-4. 扩展用 `roomToken` 建立实时连接，进入 Sharing。
-5. 你把 `roomId` 发给同学。
-6. 同学在 Guest 的 VS Code 里 Join，输入 `roomId`。
-7. 你会收到 “Allow / Deny” 弹窗；点 Allow 之后，Guest 才会真正进入协作工作区。
-8. 开始协作：文本走 Yjs update；光标/选区/在线状态走 awareness。
+## 它能做什么
 
-把它压缩成一句话：**协作不是“大家一起改文件”，而是“大家共享同一个房间里的状态机”。**
+一次协作会话里有两类角色。**Host** 是共享者，他打开本地项目并发起会话。**Guest** 是加入者，他通过邀请码进入同一个会话。
 
-下面按 3 个视角把这条链路落到源码：VS Code 扩展入口、server 侧握手挂载 peer、Yjs/provider 的同步启动。
+- **共同编辑**。两人同时修改同一个文件，彼此的修改实时同步，也能看到对方的光标和选区。
+- **共享项目**。Guest 不需要把项目下载到本地，直接在自己的 VS Code 里访问 Host 的文件。
+- **聊天**。会话里有一个聊天面板，成员可以交流。
+- **Agent 协作**。成员可以在聊天里用 `@Agent名称` 把任务交给 Agent。Agent 生成修改后，Host 审阅并决定是否应用。
+- **审计**。Host 会保存本次会话中 Agent 的审计记录，之后可以校验和生成报告。
 
-## VS Code 扩展：从 `activate()` 开始，决定“要不要进入协作态”
+## 整体架构
 
-扩展的入口就是 `activate()`。它做两件你一定要知道的事：
+整个系统由三部分组成。客户端（VS Code 扩展和各个 Agent）和服务端通过网络连接，服务端只负责在房间里转发消息，文本内容的合并在客户端完成。
 
-1. 把 UI 命令挂上（否则你点不到 Share/Join）。
-2. 启动时尝试恢复上一次会话（常发生在 Guest 侧：Guest 会保存 roomToken，重启后自动 tryConnect）。
-
-下面这段源码来自 `packages/open-collaboration-vscode/src/extension.ts`：
-
-```ts
-export async function activate(context: vscode.ExtensionContext) {
-    const container = createContainer(context);
-    container.bind(Fetch).toConstantValue(fetch);
-    const commands = container.get(Commands);
-    commands.initialize();
-    const roomService = container.get(CollaborationRoomService);
-
-    const connection = await roomService.tryConnect();
-    if (connection) {
-        // Wait for the connection to be ready before returning.
-        // This allows other extensions that need some workspace information to wait for the data.
-        await connection.ready;
-    } else {
-        await closeSharedEditors();
-        removeWorkspaceFolders();
-    }
-}
+```mermaid
+flowchart LR
+    subgraph H["Host 的电脑"]
+        HV["VS Code 扩展"]
+        HA["Host 的 Agent"]
+    end
+    subgraph G["Guest 的电脑"]
+        GV["VS Code 扩展"]
+    end
+    S["协作服务端 server<br/>房间 认证 消息转发"]
+    HV <--> S
+    GV <--> S
+    HA <--> S
 ```
 
-这段代码解决的问题是：“扩展启动后，要不要进入协作态”。
+这张图里有三点值得记住。
 
-- 上游怎么到这：VS Code activation events 触发扩展激活。
-- 下游会发生什么：`tryConnect()` 成功就会创建 `CollaborationInstance` 并驱动 UI/文件系统代理/Yjs 同步；失败则清掉残留的 `oct://` 工作区状态（典型是上次 Guest 退出不干净）。
+第一，**服务端不保存也不合并代码**。它负责房间管理、认证，以及把一个人发的消息转发给房间里的其他人。
 
-如果你想追 Create/Join 的用户路径，从这里往下读最顺：
+第二，**文本的一致性靠客户端保证**。每个客户端用 Yjs 维护一份文档，修改以更新消息的形式经服务端转发，对端合并后得到同样的结果，原理见 [数据模型与状态同步](/collaboration_tools/数据模型与状态同步.md)。
 
-- 命令与 UI：[`UI集成与命令系统`](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/UI集成与命令系统.md)
-- 创建/加入房间：[`核心服务与状态管理`](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/核心服务与状态管理.md)
-- 扩展生命周期与清理：[`扩展架构与生命周期`](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/扩展架构与生命周期.md)
+第三，**Agent 是房间里一个独立的成员**。它和人一样通过服务端加入房间，所以它的修改可以同步给其他人。
 
-## Host 审批加入：弹窗为什么会“卡住加入”
+## 代码由哪几个包组成
 
-很多“加入卡住”的问题，根本原因不是网络，而是 Host 还没点 Allow。这个弹窗就是 Host 在 `CollaborationInstance` 里注册的 join request handler（源码：`packages/open-collaboration-vscode/src/collaboration-instance.ts`）：
+仓库是一个 monorepo，`packages/` 下有 7 个包，各管一件事。
 
-```ts
-connection.peer.onJoinRequest(async (_, user) => {
-    const message = vscode.l10n.t(
-        'User {0} via {1} login wants to join the collaboration session',
-        user.email ? `${user.name} (${user.email})` : user.name,
-        user.authProvider ?? 'unknown'
-    );
-    const allow = vscode.l10n.t('Allow');
-    const deny = vscode.l10n.t('Deny');
-    const result = await vscode.window.showInformationMessage(message, allow, deny);
-    const roots = vscode.workspace.workspaceFolders ?? [];
-    return result === allow ? {
-        workspace: {
-            name: vscode.workspace.name ?? 'Collaboration',
-            folders: roots.map(e => e.name)
-        }
-    } : undefined;
-});
+| 包 | 作用 |
+|---|---|
+| `open-collaboration-protocol` | 协议。定义客户端和服务端之间的消息格式和连接方式，其他包都依赖它 |
+| `open-collaboration-server` | 服务端。管理房间、成员和认证，转发消息 |
+| `open-collaboration-yjs` | 把 Yjs 文档和协议连起来，负责文本和光标的同步 |
+| `open-collaboration-vscode` | VS Code 扩展。提供界面、命令、远程文件系统，是用户直接接触的部分 |
+| `open-collaboration-agent` | Agent。接收聊天里的任务，在工作副本里生成修改并提交为提案 |
+| `open-collaboration-monaco` | 把单个 Monaco 编辑器接入协作会话 |
+| `open-collaboration-service-process` | 让非 TypeScript 的项目接入协作的服务进程 |
+
+这些包之间的依赖关系和用到的技术，见 [技术栈与架构](/collaboration_tools/技术栈与架构.md)。
+
+## 一次协作会话经历了什么
+
+下面按时间顺序画出从创建到开始编辑的过程。
+
+```mermaid
+sequenceDiagram
+    participant H as Host
+    participant S as 服务端
+    participant G as Guest
+    H->>S: 创建房间
+    S-->>H: 返回邀请码和房间令牌
+    H->>S: 带令牌建立实时连接
+    Note over H,S: Host 进入共享状态
+    H-->>G: 把邀请码发给 Guest
+    G->>S: 用邀请码申请加入
+    S->>H: 转发加入请求
+    H-->>S: 点击 Allow 或 Deny
+    S-->>G: 批准后返回令牌和工作区信息
+    G->>S: 带令牌建立实时连接
+    Note over G,S: 服务端验证令牌，把 Guest 加入房间
+    G->>H: 经服务端转发，对齐文档状态和光标
+    Note over H,G: 开始协作，修改以更新消息实时同步
 ```
 
-这段代码解决的问题是：“Guest 加入是否需要 Host 人工确认，如果允许，需要把当前工作区的名字/根目录列表发给 Guest。”
+有几个细节在排查问题时很有用。
 
-- 上游怎么到这：Guest 侧发起 join，server 把 join request 转发到 Host peer。
-- 下游会发生什么：Host 返回的 `workspace` 信息会变成 Guest 侧的“协作工作区壳”，后续 Guest 的 `oct://` 文件系统代理会根据这个列表展示目录结构。
+- Guest 一直转圈最后超时，最常见的原因是 Host 没有点 Allow。服务端等待 Host 回复的时限是 5 分钟。
+- 一连上就断开，通常是令牌缺失或无效，服务端在握手时会校验。
+- Guest 加入后，看到的是由扩展提供的 `oct://` 远程文件系统，文件内容来自 Host。
 
-更细的 join 全链路（含超时到底在等谁）在 [项目是怎么运行的](/collaboration_tools/how_it_works.md) 里会展开。
+每一步对应的源码，见 [一次协作会话的源码走读](/collaboration_tools/session_code_walkthrough.md)。
 
-## Server：`connectChannel()` 在握手阶段做了什么
+## 人和 Agent 怎么一起工作
 
-从 server 视角看，一切都是“某个客户端连上来以后，如何把它挂载成一个 peer，并加入对应房间”。核心入口在 `packages/open-collaboration-server/src/collaboration-server.ts` 的 `connectChannel()`。这里我更建议你拆成两段读：先看握手入参校验与 claim 解析，再看“重连复用 peer vs 新建 peer”。
+Agent 的任务从聊天开始，由 Host 把关最终修改。
 
-第一段（握手入参校验 + JWT 解析成 roomClaim）：
-
-```ts
-protected async connectChannel(headers: Record<string, string | undefined>, channel: TransportChannel): Promise<void> {
-    const jwt = headers['x-oct-jwt'];
-    if (!jwt) {
-        throw this.logger.createErrorAndLog('No JWT auth token set');
-    }
-    const publicKey = headers['x-oct-public-key'];
-    if (!publicKey) {
-        throw this.logger.createErrorAndLog('No encryption key set');
-    }
-    let compression = headers['x-oct-compression']?.split(',');
-    if (compression === undefined || compression.length === 0) {
-        compression = ['none'];
-    }
-    const client = headers['x-oct-client'] ?? 'unknown';
-    const roomClaim = await this.credentials.verifyJwt(jwt, isRoomClaim);
-    const existingPeer = this.peerManager.getPeer(jwt);
+```mermaid
+flowchart LR
+    A["成员在聊天里<br/>@Agent 并描述任务"] --> B["Agent 进入任务队列<br/>按先后顺序执行"]
+    B --> C["Agent 在自己的<br/>工作副本中生成修改"]
+    C --> D["修改作为提案<br/>提交并通知 Host"]
+    D --> E{"Host 审阅差异"}
+    E -->|应用| F["修改写入项目<br/>并同步给所有人"]
+    E -->|拒绝| G["丢弃提案"]
 ```
 
-第二段（重连复用 peer，或创建 peer 并加入房间）：
+几个要点如下。
 
-```ts
-    if (existingPeer) {
-        // If a peer with the same JWT already exists, we just update the channel
-        // This indicates that a client has reconnected
-        existingPeer.channel.transport = channel;
-    } else {
-        const peer = this.peerFactory({
-            jwt,
-            user: roomClaim.user,
-            host: roomClaim.host ?? false,
-            channel,
-            client,
-            publicKey,
-            supportedCompression: compression
-        });
-        this.peerManager.register(peer);
-        await this.roomManager.join(peer, roomClaim.room);
-    }
-}
-```
+- 每个 Agent 有自己的属主和独立的工作副本，不会直接改共享项目。
+- 每个 Agent 的任务按先后顺序排队执行。
+- 如果文件在审阅前被别人改了，提案会因冲突而失效，可以让 Agent 重新生成。
 
-这段代码解决的问题是：“把一个 socket.io 连接变成可管理的 peer，并把 peer 放进房间。”
+更多细节见 [如何运行](/collaboration_tools/how_it_works.md) 中的 Agent 协作方式。
 
-- 上游怎么到这：客户端（VS Code 扩展）连接 socket.io 时把 `x-oct-jwt`、`x-oct-public-key` 等 header 带上来。
-- 下游会发生什么：`verifyJwt()` 会把 `roomToken` 解析成 `roomClaim`，得到 user/room/host 信息；随后 peer 注册到 `PeerManager`，并由 `RoomManager.join()` 进入房间生命周期（广播、权限、close 等）。
+## 接下来读什么
 
-如果你在调试“连接立即断开”，第一时间就该回到这里：缺 jwt / 缺 public key / jwt 不合法，都会直接抛错然后断线。
+| 你想做什么 | 去看 |
+|---|---|
+| 把项目跑起来 | [如何运行](/collaboration_tools/how_it_works.md) |
+| 了解用到的技术和包之间的依赖 | [技术栈与架构](/collaboration_tools/技术栈与架构.md) |
+| 在底座上做二次开发 | [二次开发指南](/collaboration_tools/secondary_dev_guide.md) |
+| 查某个模块的实现 | [源码参考手册](/collaboration_tools/source_reference.md) |
 
-更细的 server 内部结构在：
-
-- [`open-collaboration-server模块`](/collaboration_tools/核心模块详解/open-collaboration-server模块/open-collaboration-server模块.md)
-- [`服务架构与启动流程`](/collaboration_tools/核心模块详解/open-collaboration-server模块/服务架构与启动流程.md)
-- [`消息中继与广播系统`](/collaboration_tools/核心模块详解/open-collaboration-server模块/消息中继与广播系统.md)
-- [`房间与用户管理机制`](/collaboration_tools/核心模块详解/open-collaboration-server模块/房间与用户管理机制/房间与用户管理机制.md)
-
-## Yjs：`connect()` 为什么一上来要做 sync step + awareness
-
-从协作体验上看，“连上房间”只是开始。真正决定你看到的文本是否一致、光标是否同步的是 Yjs provider。`open-collaboration-yjs` 的 `connect()`（`packages/open-collaboration-yjs/src/yjs-provider.ts`）很典型：一上来先把文档状态对齐，再把 awareness 拉齐。
-
-```ts
-connect(): void {
-    // write sync step 1
-    const encoderSync = encoding.createEncoder();
-    syncProtocol.writeSyncStep1(encoderSync, this.doc);
-    this.connection.sync.dataUpdate(this.encode(encoderSync));
-    // broadcast local state
-    const encoderState = encoding.createEncoder();
-    syncProtocol.writeSyncStep2(encoderState, this.doc);
-    this.connection.sync.dataUpdate(this.encode(encoderState));
-    // query awareness info
-    this.connection.sync.awarenessQuery();
-    // broadcast local awareness info
-    const encoderAwareness = encoding.createEncoder();
-    encoding.writeVarUint8Array(
-        encoderAwareness,
-        awarenessProtocol.encodeAwarenessUpdate(this.awareness, [
-            this.doc.clientID
-        ])
-    );
-    this.connection.sync.awarenessUpdate(this.encode(encoderAwareness));
-}
-```
-
-这段代码解决的问题是：“刚连上来时，不依赖‘等别人推你’，而是主动把文档同步和 awareness 同步都启动起来”。
-
-- 上游怎么到这：`CollaborationInstance` 创建 `OpenCollaborationYjsProvider` 后会立刻 `connect()`（并且在 `onReconnect` 时再次 `connect()` 做 resync）。
-- 下游会发生什么：对端收到 sync step 后会回对应的 step2/update；awarenessQuery 会触发对端回传所有在线用户的状态，从而你能立刻看到光标/选区。
-
-如果你想把“文本同步”和“awareness 同步”拆开理解，直接读这两页会更快：
-
-- [`open-collaboration-yjs模块`](/collaboration_tools/核心模块详解/open-collaboration-yjs模块.md)
-- [`数据模型与状态同步`](/collaboration_tools/数据模型与状态同步.md)
-
-## Summary
-
-- 读代码的主线可以按一次会话走：`activate()` 进入协作态 -> Create/Join -> Host 审批 -> server `connectChannel()` 挂载 peer -> Yjs `connect()` 拉齐文本与 awareness。
-- “加入卡住”优先怀疑 Host 是否点了 Allow；这个动作在 `CollaborationInstance` 的 `onJoinRequest` 回调里。
-- “一连就断”优先回 `connectChannel()` 看 header/jwt/public key 是否齐全、jwt 是否能 `verifyJwt()`。
-- 文本不同步/光标不显示时，优先回 Yjs provider 的 `connect()` 和 `update/awareness handler`，再去看 VS Code 端的编辑器绑定逻辑。
-- 下一步阅读建议：
-  - 先跑通：[`项目是怎么运行的`](/collaboration_tools/how_it_works.md)
-  - 再看 VS Code 端：[`open-collaboration-vscode模块`](/collaboration_tools/核心模块详解/open-collaboration-vscode模块/open-collaboration-vscode模块.md)
-  - 再看 server 端：[`open-collaboration-server模块`](/collaboration_tools/核心模块详解/open-collaboration-server模块/open-collaboration-server模块.md)
-  - 同步模型：[`open-collaboration-yjs模块`](/collaboration_tools/核心模块详解/open-collaboration-yjs模块.md) + [`数据模型与状态同步`](/collaboration_tools/数据模型与状态同步.md)
+日常编码基本交给 AI，所以不需要通读源码。需要改某一块时，先读这篇和技术栈与架构，再让 AI 带着你看对应模块即可。
