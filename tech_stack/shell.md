@@ -17,8 +17,8 @@
 
 - **`↑` 上箭头**：调出上一条命令，连续按可以回溯历史。
 - **`Tab` 补全**：输入前几个字母后按 `Tab` 自动补全命令或路径；连按两次会列出所有候选。
-- **`Ctrl + C`**：中断当前正在运行的程序。
-- **`Ctrl + R`**：反向搜索历史命令，输入关键词即可找到匹配的最近命令。
+- <strong>`Ctrl + C`</strong>：中断当前正在运行的程序。
+- <strong>`Ctrl + R`</strong>：反向搜索历史命令，输入关键词即可找到匹配的最近命令。
 - **`|`（管道）**：把上一条命令的输出作为下一条命令的输入。
   ```bash
   ls -l | grep ".md" | wc -l
@@ -31,29 +31,29 @@
 
 ## 基础命令：文件与目录
 
-- **`ls`**：列出目录内容。
+- <strong>`ls`</strong>：列出目录内容。
     - `ls -l`：显示权限、大小、修改时间等详情。
     - `ls -a`：包含以 `.` 开头的隐藏文件。
-- **`cd`**：切换目录。
+- <strong>`cd`</strong>：切换目录。
     - `cd my_folder`：进入子目录。
     - `cd ..`：返回上一级。
     - `cd` 或 `cd ~`：回到主目录。
-- **`pwd`**：显示当前完整路径。
-- **`cat`**：查看文件内容。
+- <strong>`pwd`</strong>：显示当前完整路径。
+- <strong>`cat`</strong>：查看文件内容。
     ```bash
     cat README.md
     ```
-- **`cp`**：复制文件或目录。
+- <strong>`cp`</strong>：复制文件或目录。
     ```bash
     cp source.txt destination.txt
     cp -r source_dir/ destination_dir/   # -r 递归复制目录
     ```
-- **`mv`**：移动或重命名。
+- <strong>`mv`</strong>：移动或重命名。
     ```bash
     mv old_name.txt new_name.txt   # 重命名
     mv my_file.txt my_folder/      # 移动到目录
     ```
-- **`rm`**：删除文件或目录。**没有回收站，请谨慎使用。**
+- <strong>`rm`</strong>：删除文件或目录。<strong>没有回收站，请谨慎使用。</strong>
     ```bash
     rm my_file.txt
     rm -r my_folder/   # 删除目录及其内容

@@ -4,7 +4,7 @@
 
 ## 4.1 侧边栏视图 (Sidebar View)
 
-你每天都在使用侧边栏视图——文件浏览器、搜索面板、Git 面板，这些都是。VS Code 允许我们创建自己的侧边栏视图，最常见的就是**树状视图 (Tree View)**。
+你每天都在使用侧边栏视图——文件浏览器、搜索面板、Git 面板，这些都是。VS Code 允许我们创建自己的侧边栏视图，最常见的就是<strong>树状视图 (Tree View)</strong>。
 
 要创建一个树状视图，我们需要做两件事：
 
@@ -102,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 侧边栏功能强大，但UI样式是固定的。如果你想构建一个完全自定义、不受限制的复杂界面（比如一个图表、一个登录表单、一个欢迎页面），就需要使用 **Webview**。
 
-**Webview 本质上是在 VS Code 内部嵌入的一个 `iframe`**。它是一个“沙箱化”的浏览器环境，你可以在里面使用任何你熟悉的 Web 技术：`HTML`, `CSS`, 和 `JavaScript`。
+<strong>Webview 本质上是在 VS Code 内部嵌入的一个 `iframe`</strong>。它是一个“沙箱化”的浏览器环境，你可以在里面使用任何你熟悉的 Web 技术：`HTML`, `CSS`, 和 `JavaScript`。
 
 #### **实现一个简单的 Webview**
 
@@ -162,7 +162,7 @@ function getWebviewContent() {
 
 Webview 是一个独立的沙箱，它的 JavaScript 环境和你的插件 `extension.ts` 的 Node.js 环境是**完全隔离的**。它们之间不能直接调用函数或共享变量。
 
-唯一的沟通方式是**消息传递 (Message Passing)**：两边互相发送消息，再各自处理。
+唯一的沟通方式是<strong>消息传递 (Message Passing)</strong>：两边互相发送消息，再各自处理。
 
 #### **插件 (Extension) -\> Webview**
 

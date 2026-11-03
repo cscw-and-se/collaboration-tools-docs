@@ -55,7 +55,7 @@ brew install gemini-cli
 
 1.  访问 [**Google AI Studio**](https://aistudio.google.com/)。
 2.  使用你的 Google 账户登录。
-3.  在页面左侧菜单中，点击 **"Get API key"** -\> **"Create API key"**。
+3.  在页面左侧菜单中，点击 <strong>"Get API key"</strong> -\> <strong>"Create API key"</strong>。
 4.  复制生成的密钥字符串。
 
 获取密钥后，回到你的终端，运行以下命令来将它配置到 Gemini CLI 中（请将 `YOUR_API_KEY` 替换为你刚刚复制的密钥）：

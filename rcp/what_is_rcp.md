@@ -16,16 +16,16 @@
 
 实时协同编程在多个场景下都有实用价值：
 
-- **结对编程 (Pair Programming)**：两名开发者共享同一个开发环境，一人编码、一人审查，可以实时交流。
-- **远程协作 (Remote Work)**：团队成员可以在不同地点共同排查 Bug 或开发新功能，不必都到同一间办公室。
-- **教学与辅导 (Mentoring)**：老师或资深工程师可以直接进入学生的编辑器，边讲边改。
-- **在线面试 (Online Interview)**：面试官可以在共享环境中观察候选人的编码过程。
+- <strong>结对编程 (Pair Programming)</strong>：两名开发者共享同一个开发环境，一人编码、一人审查，可以实时交流。
+- <strong>远程协作 (Remote Work)</strong>：团队成员可以在不同地点共同排查 Bug 或开发新功能，不必都到同一间办公室。
+- <strong>教学与辅导 (Mentoring)</strong>：老师或资深工程师可以直接进入学生的编辑器，边讲边改。
+- <strong>在线面试 (Online Interview)</strong>：面试官可以在共享环境中观察候选人的编码过程。
 
 ## 核心特征
 
-- **实时性 (Real-Time)**：任何一位用户的增删改都能在毫秒级同步到其他人屏幕上。
-- **并发性 (Concurrency)**：支持多个用户同时在不同位置、甚至同一位置编辑，不会因为锁定机制导致“一人编辑，他人等待”。
-- **冲突解决 (Conflict Resolution)**：这是 RCP 的技术核心。当多人同时修改同一行代码时，系统需要自动合并这些修改，保证最终一致性。这通常依赖 **OT (Operational Transformation)** 或 **CRDT (Conflict-free Replicated Data Type)** 等算法，后续章节会展开。
+- <strong>实时性 (Real-Time)</strong>：任何一位用户的增删改都能在毫秒级同步到其他人屏幕上。
+- <strong>并发性 (Concurrency)</strong>：支持多个用户同时在不同位置、甚至同一位置编辑，不会因为锁定机制导致“一人编辑，他人等待”。
+- <strong>冲突解决 (Conflict Resolution)</strong>：这是 RCP 的技术核心。当多人同时修改同一行代码时，系统需要自动合并这些修改，保证最终一致性。这通常依赖 <strong>OT (Operational Transformation)</strong> 或 <strong>CRDT (Conflict-free Replicated Data Type)</strong> 等算法，后续章节会展开。
 
 ## 主要挑战
 

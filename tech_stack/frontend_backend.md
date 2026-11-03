@@ -6,13 +6,13 @@
 
 一个完整的应用可以分成两部分：
 
-**前端 (Frontend)**：用户直接看到和操作的部分。
+<strong>前端 (Frontend)</strong>：用户直接看到和操作的部分。
 
 - 负责界面展示和交互：页面布局、样式、按钮点击等。
 - 常用技术：`HTML`、`CSS`、`JavaScript`，以及 `Vue.js`、`React`、`Angular` 等框架。
 - 核心职责：把内容呈现给用户，并响应用户操作。
 
-**后端 (Backend)**：在服务器上运行、用户看不到的部分。
+<strong>后端 (Backend)</strong>：在服务器上运行、用户看不到的部分。
 
 - 负责业务逻辑、数据存储和安全校验。
 - 常用技术：`Java`、`Python`、`Go`、`Node.js` 等语言；`MySQL`、`MongoDB` 等数据库；`Nginx` 等服务器软件。

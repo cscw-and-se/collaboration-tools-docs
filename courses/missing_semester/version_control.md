@@ -48,9 +48,9 @@ git bisect                  # 二分查找引入 bug 的提交
 
 Gitflow 是一种常见约定：
 
-- **`main`**：存放正式发布的历史。
-- **`develop`**：功能集成的分支。
-- **`hotfix`**：从 `main` 拉出，修复紧急问题后同时合回 `main` 和 `develop`。
+- <strong>`main`</strong>：存放正式发布的历史。
+- <strong>`develop`</strong>：功能集成的分支。
+- <strong>`hotfix`</strong>：从 `main` 拉出，修复紧急问题后同时合回 `main` 和 `develop`。
 
 ## 5. 一些习惯
 

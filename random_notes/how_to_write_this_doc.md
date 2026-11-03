@@ -22,4 +22,4 @@
 3. 在 Markdown 中定位光标，使用快捷键粘贴图片：Windows/Linux 为 `Ctrl + Alt + V`，macOS 为 `Command + Option + V`。
 4. 插件会自动在 `assets/` 中创建图片文件，并在文档里插入正确的 Markdown 引用（例如 `![](./assets/2025-xx-xx.png)`），无需手动调整路径。
 
-借助上述设置，就能保持仓库结构整洁，同时高效地把截图嵌入到本文档或其他 Markdown 文件中。***
+借助上述设置，就能保持仓库结构整洁，同时高效地把截图嵌入到本文档或其他 Markdown 文件中。

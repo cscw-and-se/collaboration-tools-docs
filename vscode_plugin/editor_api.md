@@ -6,7 +6,7 @@
 
 VS Code 提供了一套丰富的 API 来与编辑器交互。我们的主要入口点是 `vscode.window.activeTextEditor`。
 
-`activeTextEditor` 指向用户**当前**正在操作的那个编辑器窗口。需要特别注意的是，**它的值可能是 `undefined`**。例如，当用户没有打开任何文件，或者焦点在侧边栏上时，就没有“活动的”编辑器。因此，在使用它之前，我们必须先进行判断。
+`activeTextEditor` 指向用户<strong>当前</strong>正在操作的那个编辑器窗口。需要特别注意的是，<strong>它的值可能是 `undefined`</strong>。例如，当用户没有打开任何文件，或者焦点在侧边栏上时，就没有“活动的”编辑器。因此，在使用它之前，我们必须先进行判断。
 
 让我们创建一个新命令，用来统计用户当前选中的代码有多少个字符。
 
@@ -54,11 +54,11 @@ context.subscriptions.push(countSelectionDisposable);
 
 刚刚的代码中出现了 `editor.selection`，它的类型是 `vscode.Selection`（`Selection` 是 `Range` 的一种特殊形式）。要理解它，我们必须先了解 VS Code 是如何给代码定位的。
 
-  * **`vscode.Position`**: 代表一个**精确的光标位置**，即一个“点”。它由两个数字组成：**行号 (line)** 和 **列号 (character)**。
+  * <strong>`vscode.Position`</strong>: 代表一个<strong>精确的光标位置</strong>，即一个“点”。它由两个数字组成：<strong>行号 (line)</strong> 和 <strong>列号 (character)</strong>。
 
     > **重要提示**：这两个数字都是**从 0 开始**计数的。所以，文件第一行第一列的位置是 `new vscode.Position(0, 0)`。
 
-  * **`vscode.Range`**: 代表一个**连续的文本范围**，即一个“区域”。它由两个 `Position` 对象构成：**起始点 (start)** 和 **结束点 (end)**。
+  * <strong>`vscode.Range`</strong>: 代表一个<strong>连续的文本范围</strong>，即一个“区域”。它由两个 `Position` 对象构成：<strong>起始点 (start)</strong> 和 <strong>结束点 (end)</strong>。
 
 所以，`editor.selection` 就包含了用户当前光标选择区域的起始和结束坐标。`editor.document.getText(selection)` 正是利用这个坐标范围，从文档中“抠”出了对应的文本。
 

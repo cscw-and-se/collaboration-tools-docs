@@ -13,15 +13,15 @@
 
 ## 2. 三个核心工具
 
-- **`grep`**：按模式筛选行。
+- <strong>`grep`</strong>：按模式筛选行。
   ```bash
   grep -i error app.log     # -i 忽略大小写
   ```
-- **`sed`**：流式编辑器，最常用的是替换，语法为 `s/REGEX/SUBSTITUTION/g`。
+- <strong>`sed`</strong>：流式编辑器，最常用的是替换，语法为 `s/REGEX/SUBSTITUTION/g`。
   ```bash
   sed -E 's/foo/bar/g' input.txt
   ```
-- **`awk`**：按列处理文本，本身是一门小语言。`$0` 是整行，`$1` 到 `$n` 是各列。
+- <strong>`awk`</strong>：按列处理文本，本身是一门小语言。`$0` 是整行，`$1` 到 `$n` 是各列。
 
 ## 3. 正则表达式基础
 
