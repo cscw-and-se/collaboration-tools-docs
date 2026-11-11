@@ -83,5 +83,6 @@ AI 可以根据你的大纲生成 PPT 的页面结构，也可以画流程图，
 ## 延伸阅读
 
 - [毕设与论文时间线](/research/thesis_timeline.md)
+- [组内研究工作台](/research/research_workbench.md)，把读论文、翻译、文献调研和想 idea 做成了 AI 可直接执行的流程
 - [优质网址导航](/useful_links.md)
 - [AI 使用实践](/ai_coding/ai_practice_and_boundaries.md)

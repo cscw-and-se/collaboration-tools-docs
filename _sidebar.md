@@ -30,6 +30,7 @@
 - 科研流程
   - [科研全流程地图](research/research_roadmap.md)
   - [毕设与论文时间线](research/thesis_timeline.md)
+  - [组内研究工作台（用 AI 做科研）](research/research_workbench.md)
 - 学习路线与求职
   - [本科生可以先看的课](career/learning_path.md)
 - [优质网址导航](useful_links.md)
