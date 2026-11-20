@@ -5,6 +5,7 @@
 - 什么是AI编程
   - [为什么使用AI编程](ai_coding/why_ai_coding.md)
   - [AI 使用实践](ai_coding/ai_practice_and_boundaries.md)
+  - [模型与 Harness 怎么选（持续更新）](ai_coding/model_and_harness_selection.md)
   - [如何用 AI 高效编程](ai_coding/pair_programming_with_ai.md)
   - [通过中转站使用 Codex](ai_coding/using_codex.md)
   - [AI 中转站怎么选](ai_coding/api_relay_station_selection.md)
